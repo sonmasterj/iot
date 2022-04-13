@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>991</width>
-    <height>691</height>
+    <width>973</width>
+    <height>608</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,13 +25,13 @@
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>20</number>
+     <number>10</number>
     </property>
     <property name="topMargin">
      <number>10</number>
     </property>
     <property name="rightMargin">
-     <number>20</number>
+     <number>10</number>
     </property>
     <property name="bottomMargin">
      <number>10</number>
@@ -67,14 +67,14 @@
         <widget class="QLabel" name="label_3">
          <property name="minimumSize">
           <size>
-           <width>100</width>
-           <height>100</height>
+           <width>80</width>
+           <height>80</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>100</width>
-           <height>100</height>
+           <width>80</width>
+           <height>80</height>
           </size>
          </property>
          <property name="text">
@@ -129,7 +129,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>20</height>
+        <height>10</height>
        </size>
       </property>
      </spacer>
@@ -197,13 +197,13 @@ border:none;
             </property>
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>50</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>16777215</height>
              </size>
             </property>
@@ -237,13 +237,13 @@ background-color: rgb(84,153,199);
            <widget class="QPushButton" name="btn_history">
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>50</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>16777215</height>
              </size>
             </property>
@@ -283,13 +283,13 @@ background-color: rgb(84,153,199);
             </property>
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>50</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>180</width>
               <height>16777215</height>
              </size>
             </property>
@@ -343,7 +343,7 @@ background-color: rgb(84,153,199);
 }</string>
          </property>
          <property name="currentIndex">
-          <number>10</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="homePage">
           <property name="styleSheet">
@@ -386,10 +386,10 @@ background-color: rgb(84,153,199);
                <number>5</number>
               </property>
               <property name="verticalSpacing">
-               <number>10</number>
+               <number>6</number>
               </property>
               <item row="1" column="2">
-               <widget class="QLabel" name="lb_so2_status">
+               <widget class="QLabel" name="lb_temp_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -425,7 +425,7 @@ background-color: rgb(84,153,199);
                </widget>
               </item>
               <item row="7" column="2">
-               <widget class="QLabel" name="lb_co_status_5">
+               <widget class="QLabel" name="lb_ph_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -531,7 +531,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="3" column="2">
-               <widget class="QLabel" name="lb_co_status">
+               <widget class="QLabel" name="lb_press_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -567,7 +567,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QLabel" name="lb_so2_3">
+               <widget class="QLabel" name="lb_co2">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -635,7 +635,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QLabel" name="lb_co">
+               <widget class="QLabel" name="lb_press">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -670,7 +670,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QLabel" name="lb_no2">
+               <widget class="QLabel" name="lb_o2kk">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -853,7 +853,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="4" column="2">
-               <widget class="QLabel" name="lb_co_status_2">
+               <widget class="QLabel" name="lb_o2kk_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -889,7 +889,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="6" column="1">
-               <widget class="QLabel" name="lb_so2_4">
+               <widget class="QLabel" name="lb_sound">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -924,7 +924,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="5" column="2">
-               <widget class="QLabel" name="lb_co_status_3">
+               <widget class="QLabel" name="lb_co2_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -960,7 +960,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="8" column="2">
-               <widget class="QLabel" name="lb_co_status_6">
+               <widget class="QLabel" name="lb_o2n_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -996,7 +996,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="2" column="2">
-               <widget class="QLabel" name="lb_no2_status">
+               <widget class="QLabel" name="lb_humid_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1032,7 +1032,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLabel" name="lb_so2">
+               <widget class="QLabel" name="lb_temp">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1067,7 +1067,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="6" column="2">
-               <widget class="QLabel" name="lb_co_status_4">
+               <widget class="QLabel" name="lb_sound_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1140,7 +1140,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QLabel" name="lb_so2_2">
+               <widget class="QLabel" name="lb_humid">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1208,7 +1208,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="9" column="2">
-               <widget class="QLabel" name="lb_co_status_7">
+               <widget class="QLabel" name="lb_elec_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1244,7 +1244,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="7" column="1">
-               <widget class="QLabel" name="lb_so2_6">
+               <widget class="QLabel" name="lb_ph">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1279,7 +1279,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="8" column="1">
-               <widget class="QLabel" name="lb_so2_7">
+               <widget class="QLabel" name="lb_o2n">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1314,7 +1314,7 @@ QPushButton:hover{
                </widget>
               </item>
               <item row="9" column="1">
-               <widget class="QLabel" name="lb_so2_8">
+               <widget class="QLabel" name="lb_elec">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
