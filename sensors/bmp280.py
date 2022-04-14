@@ -80,4 +80,4 @@ class BMP280:
             # Output data to screen
             return pressure
         except IOError:
-            return -1
+            return 0.0

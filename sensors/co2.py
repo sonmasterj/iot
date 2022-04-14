@@ -42,6 +42,6 @@ class MHZ19():
         else:
             if len(s) >= 4 and s[0] == 0xff and s[1] == 0x86 and ord(checksum(s[1:-1])) == s[-1]:
                 return s[2]*256 + s[3]
-        return -1
+        return 0.0
     def close_serial(self):
         self._serial.close()

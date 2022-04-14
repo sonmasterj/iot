@@ -66,9 +66,9 @@ class DFRobot_Oxygen(object):
                 self.__count += 1
             return self.get_average_num(self.__oxygendata, self.__count)
         elif (collect_num > 100) or (collect_num <= 0):
-            return -1
+            return 0.0
     except IOError:
-        return -1
+        return 0.0
 
   def get_average_num(self, barry, Len):
     temp = 0.0

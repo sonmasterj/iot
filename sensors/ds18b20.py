@@ -24,6 +24,6 @@ class DS18B20():
                 temp_c =round(float(temp_string) / 1000.0,1)
                 return temp_c
             else:
-                return 0
+                return 0.0
         except:
-            return -1
+            return 0.0

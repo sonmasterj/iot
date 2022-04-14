@@ -59,4 +59,4 @@ class SHT31():
             
             return round(humidity,1)
         except IOError:
-            return -1
+            return 0.0
