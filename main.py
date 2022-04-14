@@ -1,5 +1,5 @@
 import os
-from turtle import left
+import glob
 
 from matplotlib.pyplot import title
 import assets_qrc
@@ -14,292 +14,781 @@ import sys
 from datetime import datetime
 import socket
 import xlsxwriter as xlsx
+import RPi.GPIO as GPIO
+from ultil.asyncSleep import delay
+from sensors.ds18b20 import DS18B20
+from sensors.co2 import MHZ19
+from sensors.sht31 import SHT31
+from sensors.bmp280 import BMP280
+from sensors.airoxigen import DFRobot_Oxygen_IIC
+from sensors.wateroxigen import convertWaterOxygen
+from sensors.ph import convertPH
+from sensors.ec import convertEC
+from sensors.ADS1x15 import ADS1115
+import smbus
 view_path = 'iot.ui'
 application_path =os.path.dirname(os.path.abspath(__file__)) 
 curren_path = os.path.join(application_path,os.pardir)
 
-def checkInternet():
-    host='1.1.1.1'
-    port = 53
-    timeout = 3
-    try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-        return True
-    except socket.error:
-        return False
-def timestamp():
-    return (datetime.now().timestamp())
+try:
+    CHECK_INTERVAL = 1500
+    INTERNET_INTERVAL = 5000
 
+    SLOW_INTERVAL = 5000
+    FAST_INTERVAL = 300
 
-class TimeAxisItem(pg.AxisItem):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setLabel(text='Thời gian', units=None)
-        self.enableAutoSIPrefix(False)
+    add1_1=13
+    add1_2=16
+    add1_3=26
 
-    def tickStrings(self, values, scale, spacing):
-        return [datetime.fromtimestamp(value).strftime("%H:%M:%S.%f")[:-5] for value in values]
-class Main(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        uic.loadUi(view_path,self)
-        self.stackedWidget.setCurrentIndex(0)
-        self.query = None
-        self.queryResult = None
-        self.pageResult = 0
-        self.totalPage = 0
-        self.numItem = 20
+    add2_1=23
+    add2_2=27
+    add2_3=17
 
-        #set button events
-        self.btn_home.clicked.connect(self.goHome)
-        self.btn_history.clicked.connect(self.goHistory)
-        self.btn_exit.clicked.connect(self.goClose)
+    ada1_1=22
+    ada1_2=24
+    ada1_3=10
 
-        self.btn_off.clicked.connect(self.goClose)
+    ada2_1=11
+    ada2_2=8
+    ada2_3=9
 
-        self.btn_temp.clicked.connect(self.goTemp)
-        self.btn_humid.clicked.connect(self.goHumid)
-        self.btn_press.clicked.connect(self.goPress)
-        self.btn_o2kk.clicked.connect(self.goO2kk)
-        self.btn_co2.clicked.connect(self.goCo2)
-        self.btn_sound.clicked.connect(self.goSound)
-        self.btn_ph.clicked.connect(self.goPh)
-        self.btn_o2n.clicked.connect(self.goO2n)
-        self.btn_elec.clicked.connect(self.goElec)
+    ada3_1=1
+    ada3_2=0
+    ada3_3=7
 
-        
+    ada4_1=12
+    ada4_2=6
+    ada4_3=5
 
-        #init qdate
-        now = datetime.now()
-        qdate = QDate(now.year,now.month,now.day)
-        qtime = QTime(now.hour,now.minute,now.second)
-        self.date_start.setMaximumDate(qdate)
-        # self.date_start.setMaximumTime(qtime)
+    tempEnable = False
 
-        self.date_end.setMaximumDate(qdate)
-        # self.date_end.setMaximumTime(qtime)
-        self.date_start.setDate(qdate)
-        self.date_start.setTime(qtime)
-        self.date_end.setDate(qdate)
-        self.date_end.setTime(qtime)
-
-        pg.setConfigOption('foreground', 'k')
-
-
-        #page temperature
-        self.graphTemp = pg.PlotWidget(title='Đồ thị nhiệt độ',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nhiệt độ(℃)')
-        self.graphTemp.setMenuEnabled(False)
-        self.graphTemp.setBackground('w')
-        self.verticalLayout_6.addWidget(self.graphTemp,0)
-
-        self.gaugeTemp = AnalogGaugeWidget()
-        self.gaugeTemp.value_min =0
-        self.gaugeTemp.enable_barGraph = True
-        self.gaugeTemp.value_needle_snapzone = 1
-        self.gaugeTemp.value_max =80
-        self.gaugeTemp.scala_main_count=8
-        self.gaugeTemp.set_enable_CenterPoint(False)
-        self.gaugeTemp.update_value(11.5)
-        self.verticalLayout_6.addWidget(self.gaugeTemp,1)
-        self.verticalLayout_6.setStretch(0, 1)
-        self.verticalLayout_6.setStretch(1, 1)
-
-        #page humidity
-        self.graphHumid = pg.PlotWidget(title='Đồ thị độ ẩm',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ ẩm(%)')
-        self.graphHumid.setMenuEnabled(False)
-        self.graphHumid.setBackground('w')
-        self.verticalLayout_7.addWidget(self.graphHumid,0)
-
-        self.gaugeHumid = AnalogGaugeWidget()
-        self.gaugeHumid.value_min =0
-        self.gaugeHumid.enable_barGraph = True
-        self.gaugeHumid.value_needle_snapzone = 1
-        self.gaugeHumid.value_max =100
-        self.gaugeHumid.scala_main_count=10
-        self.gaugeHumid.set_enable_CenterPoint(False)
-        self.gaugeHumid.update_value(11.5)
-        self.verticalLayout_7.addWidget(self.gaugeHumid,1)
-        self.verticalLayout_7.setStretch(0, 1)
-        self.verticalLayout_7.setStretch(1, 1)
-
-        #page press
-        self.graphPress = pg.PlotWidget(title='Đồ thị áp suất',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Áp suất(kPa)')
-        self.graphPress.setMenuEnabled(False)
-        self.graphPress.setBackground('w')
-        self.verticalLayout_8.addWidget(self.graphPress,0)
-
-        self.gaugePress = AnalogGaugeWidget()
-        self.gaugePress.value_min =0
-        self.gaugePress.enable_barGraph = True
-        self.gaugePress.value_needle_snapzone = 1
-        self.gaugePress.value_max =150
-        self.gaugePress.scala_main_count=15
-        self.gaugePress.set_enable_CenterPoint(False)
-        self.gaugePress.update_value(11.5)
-        self.verticalLayout_8.addWidget(self.gaugePress,1)
-        self.verticalLayout_8.setStretch(0, 1)
-        self.verticalLayout_8.setStretch(1, 1)
-
-        #page O2 KK
-        self.graphO2kk = pg.PlotWidget(title='Đồ thị nồng độ O2 trong không khí',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'N.độ O2 trong không khí(%Vol)')
-        self.graphO2kk.setMenuEnabled(False)
-        self.graphO2kk.setBackground('w')
-        self.verticalLayout_9.addWidget(self.graphO2kk,0)
-
-        self.gaugeO2kk = AnalogGaugeWidget()
-        self.gaugeO2kk.value_min =0
-        self.gaugeO2kk.enable_barGraph = True
-        self.gaugeO2kk.value_needle_snapzone = 1
-        self.gaugeO2kk.value_max =30
-        self.gaugeO2kk.scala_main_count=6
-        self.gaugeO2kk.set_enable_CenterPoint(False)
-        self.gaugeO2kk.update_value(11.5)
-        self.verticalLayout_9.addWidget(self.gaugeO2kk,1)
-        self.verticalLayout_9.setStretch(0, 1)
-        self.verticalLayout_9.setStretch(1, 1)
-
-
-        #page CO2
-        self.graphCO2 = pg.PlotWidget(title='Đồ thị nồng độ CO2',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ CO2(ppm)')
-        self.graphCO2.setMenuEnabled(False)
-        self.graphCO2.setBackground('w')
-        self.verticalLayout_10.addWidget(self.graphCO2,0)
-
-        self.gaugeCO2 = AnalogGaugeWidget()
-        self.gaugeCO2.value_min =0
-        self.gaugeCO2.enable_barGraph = True
-        self.gaugeCO2.value_needle_snapzone = 1
-        self.gaugeCO2.value_max =5000
-        self.gaugeCO2.scala_main_count=10
-        self.gaugeCO2.set_enable_CenterPoint(False)
-        self.gaugeCO2.update_value(100)
-        self.verticalLayout_10.addWidget(self.gaugeCO2,1)
-        self.verticalLayout_10.setStretch(0, 1)
-        self.verticalLayout_10.setStretch(1, 1)
-
-
-        #page sound
-        self.graphSound = pg.PlotWidget(title='Đồ thị cường độ âm thanh',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Cường độ âm thanh(dBA)')
-        self.graphSound.setMenuEnabled(False)
-        self.graphSound.setBackground('w')
-        self.verticalLayout_11.addWidget(self.graphSound,0)
-
-        self.gaugeSound = AnalogGaugeWidget()
-        self.gaugeSound.value_min =0
-        self.gaugeSound.enable_barGraph = True
-        self.gaugeSound.value_needle_snapzone = 1
-        self.gaugeSound.value_max =130
-        self.gaugeSound.scala_main_count=13
-        self.gaugeSound.set_enable_CenterPoint(False)
-        self.gaugeSound.update_value(50)
-        self.verticalLayout_11.addWidget(self.gaugeSound,1)
-        self.verticalLayout_11.setStretch(0, 1)
-        self.verticalLayout_11.setStretch(1, 1)
-
-
-        #page PH
-        self.graphPH = pg.PlotWidget(title='Đồ thị độ PH',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'PH(pH)')
-        self.graphPH.setMenuEnabled(False)
-        self.graphPH.setBackground('w')
-        self.verticalLayout_12.addWidget(self.graphPH,0)
-
-        self.gaugePH = AnalogGaugeWidget()
-        self.gaugePH.value_min =0
-        self.gaugePH.enable_barGraph = True
-        self.gaugePH.value_needle_snapzone = 1
-        self.gaugePH.value_max =14
-        self.gaugePH.scala_main_count=14
-        self.gaugePH.set_enable_CenterPoint(False)
-        self.gaugePH.update_value(7)
-        self.verticalLayout_12.addWidget(self.gaugePH,1)
-        self.verticalLayout_12.setStretch(0, 1)
-        self.verticalLayout_12.setStretch(1, 1)
-
-
-        #page O2 nuoc
-        self.graphO2n = pg.PlotWidget(title='Đồ thị nồng độ O2 trong nước',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ O2 trong nước(mg/L)')
-        self.graphO2n.setMenuEnabled(False)
-        self.graphO2n.setBackground('w')
-        self.verticalLayout_13.addWidget(self.graphO2n,0)
-
-        self.gaugeO2n = AnalogGaugeWidget()
-        self.gaugeO2n.value_min =0
-        self.gaugeO2n.enable_barGraph = True
-        self.gaugeO2n.value_needle_snapzone = 1
-        self.gaugeO2n.value_max =20
-        self.gaugeO2n.scala_main_count=4
-        self.gaugeO2n.set_enable_CenterPoint(False)
-        self.gaugeO2n.update_value(7)
-        self.verticalLayout_13.addWidget(self.gaugeO2n,1)
-        self.verticalLayout_13.setStretch(0, 1)
-        self.verticalLayout_13.setStretch(1, 1)
-
-        #page Electron
-        self.graphElec = pg.PlotWidget(title='Đồ thị độ dẫn điện',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ dẫn điện(ms/cm)')
-        self.graphElec.setMenuEnabled(False)
-        self.graphElec.setBackground('w')
-        self.verticalLayout_14.addWidget(self.graphElec,0)
-
-        self.gaugeElec = AnalogGaugeWidget()
-        self.gaugeElec.value_min =0
-        self.gaugeElec.enable_barGraph = True
-        self.gaugeElec.value_needle_snapzone = 1
-        self.gaugeElec.value_max =100
-        self.gaugeElec.scala_main_count=10
-        self.gaugeElec.set_enable_CenterPoint(False)
-        self.gaugeElec.update_value(10)
-        self.verticalLayout_14.addWidget(self.gaugeElec,1)
-        self.verticalLayout_14.setStretch(0, 1)
-        self.verticalLayout_14.setStretch(1, 1)
-
-        self.show()
-
-
-
-
-        
-
-        
+    ADC_GAIN = 1
+    adc_adapter = ADS1115()
     
+    gpio_adapter = GPIO
+    gpio_adapter.setmode(gpio_adapter.BCM)
+    list_pins=[add1_1,add1_2,add1_3, add2_1,add2_2,add2_3,ada1_1,ada1_2,ada1_3,ada2_1,ada2_2,ada2_3,ada3_1,ada3_2,ada3_3,ada4_1,ada4_2,ada4_3]
+    for pin in list_pins:
+        try:
+            gpio_adapter.setup(pin,gpio_adapter.IN, pull_up_down=gpio_adapter.PUD_UP)
+        except Exception as ex:
+            print('error set up pin ',pin)
 
-    # go to Page
-    def goHome(self):
-        self.stackedWidget.setCurrentIndex(0)  
-    def goHistory(self):
-        self.stackedWidget.setCurrentIndex(10)
     
-    def goClose(self):
-        # self.readSensor.stop()
-        # self.readStatus.stop()
-        # self.timer.stop()
-        # db_close()
-        self.close()
-    
-    def goTemp(self):
-        self.stackedWidget.setCurrentIndex(1)  
-    def goHumid(self):
-        self.stackedWidget.setCurrentIndex(2)
-    def goPress(self):
-        self.stackedWidget.setCurrentIndex(3)
-    def goO2kk(self):
-        self.stackedWidget.setCurrentIndex(4)  
-    def goCo2(self):
-        self.stackedWidget.setCurrentIndex(5)
-    def goSound(self):
-        self.stackedWidget.setCurrentIndex(6)
-    def goPh(self):
-        self.stackedWidget.setCurrentIndex(7)  
-    def goO2n(self):
-        self.stackedWidget.setCurrentIndex(8)
-    def goElec(self):
-        self.stackedWidget.setCurrentIndex(9)
+    def checkInternet():
+        host='1.1.1.1'
+        port = 53
+        timeout = 3
+        try:
+            socket.setdefaulttimeout(timeout)
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+            return 1
+        except socket.error:
+            return 0
+    def timestamp():
+        return (datetime.now().timestamp())
 
-if __name__ == "__main__":
-    # creat_table()
-    app = QApplication(sys.argv)
-    # window = Home("s")
-    # window.show()
-    win = Main()
-    # win.show()
-    app.exec_()
+    #thread check sensor
+    class checkThread(QThread):
+        updateStatus = pyqtSignal(list)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = CHECK_INTERVAL
+            
+        def run(self):
+            global tempEnable
+            global gpio_adapter
+            while self.threadActive == True:
+               
+                dt_pin=[]
+                dt_sensor=[0]*9
+                for pin in list_pins:
+                    val = gpio_adapter.input(pin)
+                    dt_pin.append(val)
+                portD_1= dt_pin[0]+dt_pin[1]*2+dt_pin[2]*4
+                portD_2= dt_pin[3]+dt_pin[4]*2+dt_pin[5]*4
+                # print(portD_2)
+
+                portA_1= dt_pin[6]+dt_pin[7]*2+dt_pin[8]*4
+                portA_2= dt_pin[9]+dt_pin[10]*2+dt_pin[11]*4
+                portA_3= dt_pin[12]+dt_pin[13]*2+dt_pin[14]*4
+                portA_4= dt_pin[15]+dt_pin[16]*2+dt_pin[17]*4
+                #check cam bien nhiet do
+                if portA_1==5 or portA_2==5 or portA_3==5 or portA_4==5:
+                    dt_sensor[0]=1
+                
+                
+                #check cam bien do am
+                if portD_1==4 or portD_2==4:
+                    dt_sensor[1]=1
+                
+                #check cam bien ap suat
+                if portD_1==2 or portD_2==2:
+                    dt_sensor[2]=1
+                
+                #check cam bien o2 kk
+                if portD_1==6 or portD_2==6:
+                    dt_sensor[3]=1
+                
+                #check cam bien Co2
+                if portD_1==1 or portD_2==1:
+                    dt_sensor[4]=1
+                
+                #check cam bien am thanh
+                if portA_1==1 or portA_2==1 or portA_3==1 or portA_4==1:
+                    dt_sensor[5]=1
+
+                #check cam bien PH
+                if portA_1==2 or portA_2==2 or portA_3==2 or portA_4==2:
+                    dt_sensor[6]=1
+
+                #check cam bien o2 nuoc
+                if portA_1==4 or portA_2==4 or portA_3==4 or portA_4==4:
+                    dt_sensor[7]=1
+                
+                #check cam bien do dan dien
+                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                    dt_sensor[8]=1             
+                self.updateStatus.emit(dt_sensor)
+                if dt_sensor[0]==1 and tempEnable==False :
+                    # delay(2000)
+                    try:
+                        base_dir = '/sys/bus/w1/devices/'
+                        device_folder = glob.glob(base_dir + '28*')[0]
+                        # device_file = device_folder + '/w1_slave'
+                        # tempSensor = DS18B20(device_file)
+                        tempEnable = True
+                        print('set up done ds18b20!')
+                    except:
+                        pass
+                self.msleep(self.interval)
+        def stop(self):
+            self.threadActive = False
+            self.terminate()
+            self.wait()
+    
+    class soundThread(QThread):
+        updateDt = pyqtSignal(float)
+        def __init__(self,*args, **kwargs):
+            global adc_adapter
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = FAST_INTERVAL
+            self.adc = adc_adapter
+        
+        def run(self):
+            global gpio_adapter
+            while self.threadActive == True:
+                
+                sound = -1.0
+                if gpio_adapter.input(ada1_2)==0 and gpio_adapter.input(ada1_3)==0:
+                    vol = self.adc.read_adc(0,gain=ADC_GAIN)*4.096/32767.0
+                    sound = round(vol*50,1)
+                elif gpio_adapter.input(ada2_2)==0 and gpio_adapter.input(ada2_3)==0:
+                    vol = self.adc.read_adc(1,gain=ADC_GAIN)*4.096/32767.0
+                    sound = round(vol*50,1)
+                elif gpio_adapter.input(ada3_2)==0 and gpio_adapter.input(ada3_3)==0:
+                    vol = self.adc.read_adc(2,gain=ADC_GAIN)*4.096/32767.0
+                    sound = round(vol*50,1)
+                elif gpio_adapter.input(ada4_2)==0 and gpio_adapter.input(ada4_3)==0:
+                    vol = self.adc.read_adc(3,gain=ADC_GAIN)*4.096/32767.0
+                    sound = round(vol*50,1)
+                if sound<0:
+                    sound = -1.0
+                self.updateDt.emit(sound)
+                self.msleep(self.interval)
+        def stop(self):
+            self.threadActive = False
+            self.terminate()
+            self.wait()
+
+    #reading sensor thread
+    class tempThread(QThread):
+        updateDt = pyqtSignal(object)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = SLOW_INTERVAL
+            self.temp = None
+            bus = smbus.SMBus(1)
+            self.humid = SHT31(bus)
+            self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
+            self.press = BMP280(bus)
+            self.adc = adc_adapter
+
+
+        def run(self):
+            global tempEnable
+            global gpio_adapter
+            global list_pins
+            while self.threadActive == True:
+                _humid = self.humid.read_data()
+                _air_oxy = round(self.air_oxy.get_oxygen_data(10),1)
+                _press = round(self.press.readPress(),1)
+                _temp=-1
+                if tempEnable == True:
+                    if self.temp == None:
+                        base_dir = '/sys/bus/w1/devices/'
+                        device_folder = glob.glob(base_dir + '28*')[0]
+                        device_file = device_folder + '/w1_slave'
+                        self.temp = DS18B20(device_file)
+                        # self.msleep(100)
+                    else:
+                        _temp = self.temp.readTemp()
+                        # print(t)
+                
+                #read adc
+                raw_adc = [0,0,0,0]
+                for i in range(3):
+                    raw_adc[0]= raw_adc[0]+ self.adc.read_adc(0,gain=ADC_GAIN)
+                    raw_adc[1]= raw_adc[1]+ self.adc.read_adc(1,gain=ADC_GAIN)
+                    raw_adc[2]= raw_adc[2]+ self.adc.read_adc(2,gain=ADC_GAIN)
+                    raw_adc[3]= raw_adc[3]+ self.adc.read_adc(3,gain=ADC_GAIN)
+                    delay(0.1)
+                
+                
+                for i in range(4):
+                    raw_adc[i] = raw_adc[i]/3.0
+                
+                listPin_status=[]
+                for i in range(6,18):
+                    listPin_status.append(gpio_adapter.input(list_pins[i]))
+                
+                
+                portA_1 = listPin_status[0]+listPin_status[1]*2+listPin_status[2]*4
+                portA_2 = listPin_status[3]+listPin_status[4]*2+listPin_status[5]*4
+                portA_3 = listPin_status[6]+listPin_status[7]*2+listPin_status[8]*4
+                portA_4 = listPin_status[9]+listPin_status[10]*2+listPin_status[11]*4
+                
+                portA=[portA_1,portA_2,portA_3,portA_4]
+                #check ph sensor
+                _ph=-1
+                if portA_1==2 or portA_2==2 or portA_3==2 or portA_4==2:
+                    for i in range(4):
+                        if portA[i]==2:
+                            _ph = convertPH(raw_adc[i])
+                            break
+
+                #check water oxy sensor
+                _water_oxy=-1
+                if portA_1==4 or portA_2==4 or portA_3==4 or portA_4==4:
+                    for i in range(4):
+                        if portA[i]==4:
+                            _water_oxy = convertWaterOxygen(raw_adc[i])
+                            break  
+                #check ec sensor
+                _ec=-1
+                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                    for i in range(4):
+                        if portA[i]==3:
+                            _ec = convertWaterOxygen(raw_adc[i])
+                            break       
+                  
+
+                dt={
+                    'temp':_temp,
+                    'humid':_humid,
+                    'press':_press,
+                    'air_oxy':_air_oxy,
+                    'pH':_ph,
+                    'water_oxy':_water_oxy,
+                    'ec':_ec
+                }    
+                self.updateDt.emit(dt) 
+                self.msleep(self.interval)
+        def stop(self):
+            self.threadActive = False
+            self.terminate()
+            self.wait()
+
+    
+    #reading co2 thread
+    class co2Thread(QThread):
+        updateDt = pyqtSignal(float)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = SLOW_INTERVAL
+            self.co2 = MHZ19()
+
+        def run(self):
+            
+            while self.threadActive == True:
+                val = self.co2.read_concentration()
+                self.updateDt.emit(val)
+                self.msleep(self.interval)
+                
+        def stop(self):
+            self.threadActive = False
+            self.co2.close_serial()
+            self.terminate()
+            self.wait()
+
+
+    class internetThread(QThread):
+        updateStatus = pyqtSignal(str)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = INTERNET_INTERVAL
+            
+        def run(self):
+            while self.threadActive == True:
+                internet_status = checkInternet()
+                self.updateStatus.emit(str(internet_status))
+                self.msleep(self.interval)
+        def stop(self):
+            self.threadActive = False
+            self.terminate()
+            self.wait()
+
+
+    class TimeAxisItem(pg.AxisItem):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.setLabel(text='Thời gian', units=None)
+            self.enableAutoSIPrefix(False)
+
+        def tickStrings(self, values, scale, spacing):
+            return [datetime.fromtimestamp(value).strftime("%H:%M:%S.%f")[:-5] for value in values]
+
+
+    class Main(QMainWindow):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            uic.loadUi(view_path,self)
+            self.stackedWidget.setCurrentIndex(0)
+            self.query = None
+            self.queryResult = None
+            self.pageResult = 0
+            self.totalPage = 0
+            self.numItem = 20
+            self.listSensorStatus=[0]*9
+            self.internetStatus='0'
+
+            #set button events
+            self.btn_home.clicked.connect(self.goHome)
+            self.btn_history.clicked.connect(self.goHistory)
+            self.btn_exit.clicked.connect(self.goClose)
+
+            self.btn_off.clicked.connect(self.goClose)
+
+            self.btn_temp.clicked.connect(self.goTemp)
+            self.btn_humid.clicked.connect(self.goHumid)
+            self.btn_press.clicked.connect(self.goPress)
+            self.btn_o2kk.clicked.connect(self.goO2kk)
+            self.btn_co2.clicked.connect(self.goCo2)
+            self.btn_sound.clicked.connect(self.goSound)
+            self.btn_ph.clicked.connect(self.goPh)
+            self.btn_o2n.clicked.connect(self.goO2n)
+            self.btn_elec.clicked.connect(self.goElec)
+
+            
+
+            #init qdate
+            now = datetime.now()
+            qdate = QDate(now.year,now.month,now.day)
+            qtime = QTime(now.hour,now.minute,now.second)
+            self.date_start.setMaximumDate(qdate)
+            # self.date_start.setMaximumTime(qtime)
+
+            self.date_end.setMaximumDate(qdate)
+            # self.date_end.setMaximumTime(qtime)s
+            self.date_start.setDate(qdate)
+            self.date_start.setTime(qtime)
+            self.date_end.setDate(qdate)
+            self.date_end.setTime(qtime)
+
+            #set up timer for showwing datetime
+            self.timer=QTimer()
+            self.timer.timeout.connect(self.showTime)
+            self.timer.start(1000)
+
+            #set up internet thread
+            self.readInternet = internetThread(self)
+            self.readInternet.updateStatus.connect(self.updateInternet)
+            self.readInternet.start()
+
+            #set up sensor status thread
+            self.sensorStatus = checkThread(self)
+            self.sensorStatus.updateStatus.connect(self.updateSensorStatus)
+            self.sensorStatus.start()
+
+            #set up reading temp thread
+            self.tempSensor = tempThread(self)
+            self.tempSensor.updateDt.connect(self.updateTemp)
+            self.tempSensor.start()
+
+            #set up reading temp thread
+            self.co2Sensor = co2Thread(self)
+            self.co2Sensor.updateDt.connect(self.updateCo2)
+            self.co2Sensor.start()
+
+            #set up sound thread
+            self.soundSensor = soundThread(self)
+            self.soundSensor.updateDt.connect(self.updateSound)
+            self.soundSensor.start()
+
+
+            pg.setConfigOption('foreground', 'k')
+
+
+            #page temperature
+            self.graphTemp = pg.PlotWidget(title='Đồ thị nhiệt độ',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nhiệt độ(℃)')
+            self.graphTemp.setMenuEnabled(False)
+            self.graphTemp.setBackground('w')
+            self.verticalLayout_6.addWidget(self.graphTemp,0)
+
+            self.gaugeTemp = AnalogGaugeWidget()
+            self.gaugeTemp.value_min =0
+            self.gaugeTemp.enable_barGraph = True
+            self.gaugeTemp.value_needle_snapzone = 1
+            self.gaugeTemp.value_max =80
+            self.gaugeTemp.scala_main_count=8
+            self.gaugeTemp.set_enable_CenterPoint(False)
+            self.gaugeTemp.update_value(11.5)
+            self.verticalLayout_6.addWidget(self.gaugeTemp,1)
+            self.verticalLayout_6.setStretch(0, 1)
+            self.verticalLayout_6.setStretch(1, 1)
+
+            #page humidity
+            self.graphHumid = pg.PlotWidget(title='Đồ thị độ ẩm',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ ẩm(%)')
+            self.graphHumid.setMenuEnabled(False)
+            self.graphHumid.setBackground('w')
+            self.verticalLayout_7.addWidget(self.graphHumid,0)
+
+            self.gaugeHumid = AnalogGaugeWidget()
+            self.gaugeHumid.value_min =0
+            self.gaugeHumid.enable_barGraph = True
+            self.gaugeHumid.value_needle_snapzone = 1
+            self.gaugeHumid.value_max =100
+            self.gaugeHumid.scala_main_count=10
+            self.gaugeHumid.set_enable_CenterPoint(False)
+            self.gaugeHumid.update_value(11.5)
+            self.verticalLayout_7.addWidget(self.gaugeHumid,1)
+            self.verticalLayout_7.setStretch(0, 1)
+            self.verticalLayout_7.setStretch(1, 1)
+
+            #page press
+            self.graphPress = pg.PlotWidget(title='Đồ thị áp suất',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Áp suất(kPa)')
+            self.graphPress.setMenuEnabled(False)
+            self.graphPress.setBackground('w')
+            self.verticalLayout_8.addWidget(self.graphPress,0)
+
+            self.gaugePress = AnalogGaugeWidget()
+            self.gaugePress.value_min =0
+            self.gaugePress.enable_barGraph = True
+            self.gaugePress.value_needle_snapzone = 1
+            self.gaugePress.value_max =150
+            self.gaugePress.scala_main_count=15
+            self.gaugePress.set_enable_CenterPoint(False)
+            self.gaugePress.update_value(11.5)
+            self.verticalLayout_8.addWidget(self.gaugePress,1)
+            self.verticalLayout_8.setStretch(0, 1)
+            self.verticalLayout_8.setStretch(1, 1)
+
+            #page O2 KK
+            self.graphO2kk = pg.PlotWidget(title='Đồ thị nồng độ O2 trong không khí',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'N.độ O2 trong không khí(%Vol)')
+            self.graphO2kk.setMenuEnabled(False)
+            self.graphO2kk.setBackground('w')
+            self.verticalLayout_9.addWidget(self.graphO2kk,0)
+
+            self.gaugeO2kk = AnalogGaugeWidget()
+            self.gaugeO2kk.value_min =0
+            self.gaugeO2kk.enable_barGraph = True
+            self.gaugeO2kk.value_needle_snapzone = 1
+            self.gaugeO2kk.value_max =30
+            self.gaugeO2kk.scala_main_count=6
+            self.gaugeO2kk.set_enable_CenterPoint(False)
+            self.gaugeO2kk.update_value(11.5)
+            self.verticalLayout_9.addWidget(self.gaugeO2kk,1)
+            self.verticalLayout_9.setStretch(0, 1)
+            self.verticalLayout_9.setStretch(1, 1)
+
+
+            #page CO2
+            self.graphCO2 = pg.PlotWidget(title='Đồ thị nồng độ CO2',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ CO2(ppm)')
+            self.graphCO2.setMenuEnabled(False)
+            self.graphCO2.setBackground('w')
+            self.verticalLayout_10.addWidget(self.graphCO2,0)
+
+            self.gaugeCO2 = AnalogGaugeWidget()
+            self.gaugeCO2.value_min =0
+            self.gaugeCO2.enable_barGraph = True
+            self.gaugeCO2.value_needle_snapzone = 1
+            self.gaugeCO2.value_max =5000
+            self.gaugeCO2.scala_main_count=10
+            self.gaugeCO2.set_enable_CenterPoint(False)
+            self.gaugeCO2.update_value(100)
+            self.verticalLayout_10.addWidget(self.gaugeCO2,1)
+            self.verticalLayout_10.setStretch(0, 1)
+            self.verticalLayout_10.setStretch(1, 1)
+
+
+            #page sound
+            self.graphSound = pg.PlotWidget(title='Đồ thị cường độ âm thanh',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Cường độ âm thanh(dBA)')
+            self.graphSound.setMenuEnabled(False)
+            self.graphSound.setBackground('w')
+            self.verticalLayout_11.addWidget(self.graphSound,0)
+
+            self.gaugeSound = AnalogGaugeWidget()
+            self.gaugeSound.value_min =0
+            self.gaugeSound.enable_barGraph = True
+            self.gaugeSound.value_needle_snapzone = 1
+            self.gaugeSound.value_max =130
+            self.gaugeSound.scala_main_count=13
+            self.gaugeSound.set_enable_CenterPoint(False)
+            self.gaugeSound.update_value(50)
+            self.verticalLayout_11.addWidget(self.gaugeSound,1)
+            self.verticalLayout_11.setStretch(0, 1)
+            self.verticalLayout_11.setStretch(1, 1)
+
+
+            #page PH
+            self.graphPH = pg.PlotWidget(title='Đồ thị độ PH',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'PH(pH)')
+            self.graphPH.setMenuEnabled(False)
+            self.graphPH.setBackground('w')
+            self.verticalLayout_12.addWidget(self.graphPH,0)
+
+            self.gaugePH = AnalogGaugeWidget()
+            self.gaugePH.value_min =0
+            self.gaugePH.enable_barGraph = True
+            self.gaugePH.value_needle_snapzone = 1
+            self.gaugePH.value_max =14
+            self.gaugePH.scala_main_count=14
+            self.gaugePH.set_enable_CenterPoint(False)
+            self.gaugePH.update_value(7)
+            self.verticalLayout_12.addWidget(self.gaugePH,1)
+            self.verticalLayout_12.setStretch(0, 1)
+            self.verticalLayout_12.setStretch(1, 1)
+
+
+            #page O2 nuoc
+            self.graphO2n = pg.PlotWidget(title='Đồ thị nồng độ O2 trong nước',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ O2 trong nước(mg/L)')
+            self.graphO2n.setMenuEnabled(False)
+            self.graphO2n.setBackground('w')
+            self.verticalLayout_13.addWidget(self.graphO2n,0)
+
+            self.gaugeO2n = AnalogGaugeWidget()
+            self.gaugeO2n.value_min =0
+            self.gaugeO2n.enable_barGraph = True
+            self.gaugeO2n.value_needle_snapzone = 1
+            self.gaugeO2n.value_max =20
+            self.gaugeO2n.scala_main_count=4
+            self.gaugeO2n.set_enable_CenterPoint(False)
+            self.gaugeO2n.update_value(7)
+            self.verticalLayout_13.addWidget(self.gaugeO2n,1)
+            self.verticalLayout_13.setStretch(0, 1)
+            self.verticalLayout_13.setStretch(1, 1)
+
+            #page Electron
+            self.graphElec = pg.PlotWidget(title='Đồ thị độ dẫn điện',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ dẫn điện(ms/cm)')
+            self.graphElec.setMenuEnabled(False)
+            self.graphElec.setBackground('w')
+            self.verticalLayout_14.addWidget(self.graphElec,0)
+
+            self.gaugeElec = AnalogGaugeWidget()
+            self.gaugeElec.value_min =0
+            self.gaugeElec.enable_barGraph = True
+            self.gaugeElec.value_needle_snapzone = 1
+            self.gaugeElec.value_max =100
+            self.gaugeElec.scala_main_count=10
+            self.gaugeElec.set_enable_CenterPoint(False)
+            self.gaugeElec.update_value(10)
+            self.verticalLayout_14.addWidget(self.gaugeElec,1)
+            self.verticalLayout_14.setStretch(0, 1)
+            self.verticalLayout_14.setStretch(1, 1)
+
+            self.show()
+
+
+
+
+            
+
+            
+        
+        def showTime(self):
+            now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            self.lb_datetime.setText(now)
+        
+        def updateInternet(self,dt):
+            # print('internet status:',dt)
+            if self.internetStatus==dt:
+                return
+            self.internetStatus=dt
+            if dt=='1':
+                self.frameInternet.setToolTip('Đang kết nối')
+                self.lb_internet.setStyleSheet("background-color: rgb(0, 255, 0);border-radius:8px;")
+            else:
+                self.frameInternet.setToolTip('Mất kết nối')
+                self.lb_internet.setStyleSheet("background-color: rgb(255,0, 0);border-radius:8px;")
+        def updateSensorStatus(self,dt):
+            # print('sensor status:',dt)
+            if self.listSensorStatus[0]!=dt[0]:
+                self.listSensorStatus[0]=dt[0]
+                if dt[0]==1:
+                    self.lb_temp_status.setText("Đang kết nối")
+                    self.lb_temp_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_temp.setText('-1')
+                    self.lb_temp_status.setText("Ngắt kết nối")
+                    self.lb_temp_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+            
+            if self.listSensorStatus[1]!=dt[1]:
+                self.listSensorStatus[1]=dt[1]
+                if dt[1]==1:
+                    self.lb_humid_status.setText("Đang kết nối")
+                    self.lb_humid_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_humid.setText('-1')
+                    self.lb_humid_status.setText("Ngắt kết nối")
+                    self.lb_humid_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+
+            if self.listSensorStatus[2]!=dt[2]:
+                self.listSensorStatus[2]=dt[2]
+                if dt[2]==1:
+                    self.lb_press_status.setText("Đang kết nối")
+                    self.lb_press_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_press.setText('-1')
+                    self.lb_press_status.setText("Ngắt kết nối")
+                    self.lb_press_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+            if self.listSensorStatus[3]!=dt[3]:
+                self.listSensorStatus[3]=dt[3]
+                if dt[3]==1:
+                    self.lb_o2kk_status.setText("Đang kết nối")
+                    self.lb_o2kk_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_o2kk.setText('-1')
+                    self.lb_o2kk_status.setText("Ngắt kết nối")
+                    self.lb_o2kk_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+            if self.listSensorStatus[4]!=dt[4]:
+                self.listSensorStatus[4]=dt[4]
+                if dt[4]==1:
+                    self.lb_co2_status.setText("Đang kết nối")
+                    self.lb_co2_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_co2.setText('-1')
+                    self.lb_co2_status.setText("Ngắt kết nối")
+                    self.lb_co2_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+
+            if self.listSensorStatus[5]!=dt[5]:
+                self.listSensorStatus[5]=dt[5]
+                if dt[5]==1:
+                    self.lb_sound_status.setText("Đang kết nối")
+                    self.lb_sound_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_sound.setText('-1')
+                    self.lb_sound_status.setText("Ngắt kết nối")
+                    self.lb_sound_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+            
+            if self.listSensorStatus[6]!=dt[6]:
+                self.listSensorStatus[6]=dt[6]
+                if dt[6]==1:
+                    self.lb_ph_status.setText("Đang kết nối")
+                    self.lb_ph_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_ph.setText('-1')
+                    self.lb_ph_status.setText("Ngắt kết nối")
+                    self.lb_ph_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+            
+            if self.listSensorStatus[7]!=dt[7]:
+                self.listSensorStatus[7]=dt[7]
+                if dt[7]==1:
+                    self.lb_o2n_status.setText("Đang kết nối")
+                    self.lb_o2n_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_o2n.setText('-1')
+                    self.lb_o2n_status.setText("Ngắt kết nối")
+                    self.lb_o2n_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+
+            if self.listSensorStatus[8]!=dt[8]:
+                self.listSensorStatus[8]=dt[8]
+                if dt[8]==1:
+                    self.lb_elec_status.setText("Đang kết nối")
+                    self.lb_elec_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_elec.setText('-1')
+                    self.lb_elec_status.setText("Ngắt kết nối")
+                    self.lb_elec_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+
+        def updateTemp(self,dt):
+            print('data from temp thread:',dt)
+            if self.lb_temp.text()!= str(dt['temp']) and dt['temp']!=0:
+                self.lb_temp.setText(str(dt['temp']))
+
+            if self.lb_humid.text()!=str(dt['humid']):
+                self.lb_humid.setText(str(dt['humid']))
+
+            if self.lb_press.text()!=str(dt['press']):
+                self.lb_press.setText(str(dt['press']))
+
+            if self.lb_o2kk.text()!=str(dt['air_oxy']):
+                self.lb_o2kk.setText(str(dt['air_oxy']))
+            
+            if self.lb_ph.text()!=str(dt['pH']):
+                self.lb_ph.setText(str(dt['pH']))
+            
+            if self.lb_o2n.text()!=str(dt['water_oxy']):
+                self.lb_o2n.setText(str(dt['water_oxy']))
+
+            if self.lb_elec.text()!=str(dt['ec']):
+                self.lb_elec.setText(str(dt['ec']))
+        
+        def updateCo2(self,dt):
+            print('co2:',dt)
+            if self.lb_co2.text()!= str(dt):
+                self.lb_co2.setText(str(dt))
+
+        def updateSound(self,dt):
+            print('sound:',dt)
+            if self.lb_sound.text()!=str(dt):
+                self.lb_sound.setText(str(dt))
+
+        # go to Pages
+        def goHome(self):
+            self.stackedWidget.setCurrentIndex(0)  
+        def goHistory(self):
+            self.stackedWidget.setCurrentIndex(10)
+        
+        def goClose(self):
+            self.readInternet.stop()
+            self.sensorStatus.stop()
+            # self.readStatus.stop()
+            # self.timer.stop()
+            # db_close()
+            self.close()
+        
+        def goTemp(self):
+            self.stackedWidget.setCurrentIndex(1)  
+        def goHumid(self):
+            self.stackedWidget.setCurrentIndex(2)
+        def goPress(self):
+            self.stackedWidget.setCurrentIndex(3)
+        def goO2kk(self):
+            self.stackedWidget.setCurrentIndex(4)  
+        def goCo2(self):
+            self.stackedWidget.setCurrentIndex(5)
+        def goSound(self):
+            self.stackedWidget.setCurrentIndex(6)
+        def goPh(self):
+            self.stackedWidget.setCurrentIndex(7)  
+        def goO2n(self):
+            self.stackedWidget.setCurrentIndex(8)
+        def goElec(self):
+            self.stackedWidget.setCurrentIndex(9)
+
+    if __name__ == "__main__":
+        # creat_table()
+        app = QApplication(sys.argv)
+        # window = Home("s")
+        # window.show()
+        win = Main()
+        # win.show()
+        app.exec_()
+finally:
+    print("exit app!")
+    GPIO.cleanup()
