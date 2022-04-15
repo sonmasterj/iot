@@ -7,6 +7,7 @@ os.system('sudo dtoverlay w1-gpio gpiopin=25 pullup=0')
 class DS18B20():
     def __init__(self,device_file):
         self.device_file=device_file
+        # self._file = open(self.device_file, 'r')
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
         lines = f.readlines()
@@ -16,7 +17,7 @@ class DS18B20():
         try:
             lines = self.read_temp_raw()
             while lines[0].strip()[-3:] != 'YES':
-                delay(0.03)
+                delay(0.02)
                 lines = self.read_temp_raw()
             equals_pos = lines[1].find('t=')
             if equals_pos != -1:
@@ -27,3 +28,5 @@ class DS18B20():
                 return 0.0
         except:
             return 0.0
+    # def cleanUp(self):
+    #     self._file.close()

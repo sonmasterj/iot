@@ -37,6 +37,7 @@ try:
 
     SLOW_INTERVAL = 4000
     FAST_INTERVAL = 300
+    MAX_STEPS = 10
 
     add1_1=13
     add1_2=16
@@ -97,6 +98,7 @@ try:
             super().__init__(*args, **kwargs)
             self.threadActive = True
             self.interval = CHECK_INTERVAL
+            self.step = self.interval/MAX_STEPS
             
         def run(self):
             global tempEnable
@@ -164,20 +166,25 @@ try:
                         print('set up done ds18b20!')
                     except:
                         pass
-                self.msleep(self.interval)
+                i=0
+                while i<self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
+                
         def stop(self):
             self.threadActive = False
             self.terminate()
             self.wait()
     
     class soundThread(QThread):
-        updateDt = pyqtSignal(float)
+        updateDt = pyqtSignal(object)
         def __init__(self,*args, **kwargs):
             global adc_adapter
             super().__init__(*args, **kwargs)
             self.threadActive = True
             self.interval = FAST_INTERVAL
             self.adc = adc_adapter
+            self.step = self.interval/MAX_STEPS
         
         def run(self):
             global gpio_adapter
@@ -198,58 +205,92 @@ try:
                     sound = round(vol*50,1)
                 if sound<0:
                     sound = 0.0
-                self.updateDt.emit(sound)
-                self.msleep(self.interval)
+                dt={
+                    'time':timestamp(),
+                    'sound':sound
+                }
+                self.updateDt.emit(dt)
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
             self.terminate()
             self.wait()
 
-    #reading sensor thread
     class tempThread(QThread):
         updateDt = pyqtSignal(object)
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL
+            self.interval = SLOW_INTERVAL-900
             self.temp = None
-            bus = smbus.SMBus(1)
-            self.humid = SHT31(bus)
-            self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
-            self.press = BMP280(bus)
-            
-
+            self.step = self.interval/MAX_STEPS
 
         def run(self):
             global tempEnable
-            
             while self.threadActive == True:
-                
-                _humid = self.humid.read_data()
-                _air_oxy = round(self.air_oxy.get_oxygen_data(10),1)
-                _press = round(self.press.readPress(),1)
                 _temp=0.0
-                start = timestamp()
                 if tempEnable == True:
                     if self.temp == None:
                         base_dir = '/sys/bus/w1/devices/'
                         device_folder = glob.glob(base_dir + '28*')[0]
                         device_file = device_folder + '/w1_slave'
                         self.temp = DS18B20(device_file)
+                        _temp = self.temp.readTemp()
                         # self.msleep(100)
                     else:
                         _temp = self.temp.readTemp()
-                        # print(t)
+                now = timestamp()
                 dt={
-                    'temp':_temp,
+                    'time':now,
+                    'temp':_temp
+                }
+                self.updateDt.emit(dt)
+                # self.updateDt.emit()
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
+                
+        def stop(self):
+            self.threadActive = False
+            self.terminate()
+            self.wait()
+
+    #reading sensor thread
+    class digitalThread(QThread):
+        updateDt = pyqtSignal(object)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = SLOW_INTERVAL
+            bus = smbus.SMBus(1)
+            self.humid = SHT31(bus)
+            self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
+            self.press = BMP280(bus)
+            self.step = self.interval/MAX_STEPS
+            
+
+
+        def run(self):
+            while self.threadActive == True:
+                _humid = self.humid.read_data()
+                _air_oxy = round(self.air_oxy.get_oxygen_data(10),1)
+                _press = round(self.press.readPress(),1)
+                now = timestamp()
+                dt={
+                    'time':now,
                     'humid':_humid,
                     'press':_press,
                     'air_oxy':_air_oxy,
                 }    
                 self.updateDt.emit(dt) 
-                end = timestamp()
-                print('time temp reading:',end-start)
-                self.msleep(self.interval)
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
             self.terminate()
@@ -264,6 +305,7 @@ try:
             self.threadActive = True
             self.interval = SLOW_INTERVAL
             self.adc = adc_adapter
+            self.step = self.interval/MAX_STEPS
             
 
         def run(self):
@@ -271,7 +313,7 @@ try:
             global list_pins
             while self.threadActive == True:
                 #read adc
-                start = timestamp()
+                # start = timestamp()
                 raw_adc = [0,0,0,0]
                 for i in range(3):
                     raw_adc[0]= raw_adc[0]+ self.adc.read_adc(0,gain=ADC_GAIN)
@@ -322,12 +364,16 @@ try:
                 dt={
                     'pH':_ph,
                     'water_oxy':_water_oxy,
-                    'ec':_ec
+                    'ec':_ec,
+                    'time':timestamp()
                 }    
-                end = timestamp()
-                print('time analog reading:',end-start)
+                # end = timestamp()
+                # print('time analog reading:',end-start)
                 self.updateDt.emit(dt) 
-                self.msleep(self.interval)
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
                 
         def stop(self):
             self.threadActive = False
@@ -335,19 +381,27 @@ try:
             self.wait()
     #reading co2 thread
     class co2Thread(QThread):
-        updateDt = pyqtSignal(float)
+        updateDt = pyqtSignal(object)
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
             self.interval = SLOW_INTERVAL
             self.co2 = MHZ19()
+            self.step = self.interval/MAX_STEPS
 
         def run(self):
             
             while self.threadActive == True:
                 val = self.co2.read_concentration()
-                self.updateDt.emit(val)
-                self.msleep(self.interval)
+                dt={
+                    'co2':val,
+                    'time':timestamp()
+                }
+                self.updateDt.emit(dt)
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
                 
         def stop(self):
             self.threadActive = False
@@ -363,12 +417,16 @@ try:
             super().__init__(*args, **kwargs)
             self.threadActive = True
             self.interval = INTERNET_INTERVAL
+            self.step = self.interval/MAX_STEPS
             
         def run(self):
             while self.threadActive == True:
                 internet_status = checkInternet()
                 self.updateStatus.emit(str(internet_status))
-                self.msleep(self.interval)
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
             self.terminate()
@@ -403,6 +461,7 @@ try:
             self.maxLen=40
             self.maxRow=20
             self.time_stamp_temp=deque([])
+            self.time_stamp_digital=deque([])
             self.time_stamp_co2=deque([])
             self.time_stamp_sound=deque([])
             self.time_stamp_analog=deque([])
@@ -475,6 +534,10 @@ try:
             self.tempSensor = tempThread(self)
             self.tempSensor.updateDt.connect(self.updateTemp)
             self.tempSensor.start()
+
+            self.digitalSensor = digitalThread(self)
+            self.digitalSensor.updateDt.connect(self.updateDigital)
+            self.digitalSensor.start()
 
             #set up reading temp thread
             self.co2Sensor = co2Thread(self)
@@ -822,17 +885,37 @@ try:
                     self.lb_elec_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
 
         def updateTemp(self,dt):
-            print('data from temp thread:',dt)
+            # print('temp thread:',dt)
             if self.start == True:
-                now = timestamp()
+                now = dt['time']
                 if len(self.time_stamp_temp)>self.maxLen:
                     self.time_stamp_temp.popleft()
                     self.list_temp.popleft()
+                self.time_stamp_temp.append(now)
+                self.list_temp.append(dt['temp'])
+                currentPage = self.stackedWidget.currentIndex()
+                #page temp
+                if currentPage==1:
+                    self.gaugeTemp.update_value(dt['temp'])
+                    self.line_temp.setData(self.time_stamp_temp,self.list_temp)
+                count = self.tableTemp.rowCount()
+                now_str=datetime.fromtimestamp(now).strftime("%H:%M:%S.%f")[:-5]
+                if count>self.maxRow:
+                    self.tableTemp.removeRow(count-1)
+                self.insertFirstRow(self.tableTemp,[now_str,dt['temp']])
+            if self.lb_temp.text()!= str(dt['temp']):
+                self.lb_temp.setText(str(dt['temp']))
+
+        def updateDigital(self,dt):
+            # print('data from digital thread:',dt)
+            if self.start == True:
+                now = dt['time']
+                if len(self.time_stamp_digital)>self.maxLen:
+                    self.time_stamp_digital.popleft()
                     self.list_humid.popleft()
                     self.list_press.popleft()
                     self.list_o2kk.popleft()
-                self.time_stamp_temp.append(now)
-                self.list_temp.append(dt['temp'])
+                self.time_stamp_digital.append(now)
                 self.list_humid.append(dt['humid'])
                 self.list_press.append(dt['press'])
                 self.list_o2kk.append(dt['air_oxy'])
@@ -840,19 +923,15 @@ try:
 
                 #update graph and gauge
                 currentPage = self.stackedWidget.currentIndex()
-                #page temp
-                if currentPage==1:
-                    self.gaugeTemp.update_value(dt['temp'])
-                    self.line_temp.setData(self.time_stamp_temp,self.list_temp)
-                elif currentPage ==2:
+                if currentPage ==2:
                     self.gaugeHumid.update_value(dt['humid'])
-                    self.line_humid.setData(self.time_stamp_temp,self.list_humid)
+                    self.line_humid.setData(self.time_stamp_digital,self.list_humid)
                 elif currentPage ==3:
                     self.gaugePress.update_value(dt['press'])
-                    self.line_press.setData(self.time_stamp_temp,self.list_press)
+                    self.line_press.setData(self.time_stamp_digital,self.list_press)
                 elif currentPage ==4:
                     self.gaugeO2kk.update_value(dt['air_oxy'])
-                    self.line_o2kk.setData(self.time_stamp_temp,self.list_o2kk)
+                    self.line_o2kk.setData(self.time_stamp_digital,self.list_o2kk)
                 
 
 
@@ -860,20 +939,18 @@ try:
                 count = self.tableTemp.rowCount()
                 now_str=datetime.fromtimestamp(now).strftime("%H:%M:%S.%f")[:-5]
                 if count>self.maxRow:
-                    self.tableTemp.removeRow(count-1)
                     self.tableHumid.removeRow(count-1)
                     self.tablePress.removeRow(count-1)
                     self.tableO2kk.removeRow(count-1)
                     
-                self.insertFirstRow(self.tableTemp,[now_str,dt['temp']])
+                
                 self.insertFirstRow(self.tableHumid,[now_str,dt['humid']])
                 self.insertFirstRow(self.tablePress,[now_str,dt['press']])
                 self.insertFirstRow(self.tableO2kk,[now_str,dt['air_oxy']])
                 
 
 
-            if self.lb_temp.text()!= str(dt['temp']):
-                self.lb_temp.setText(str(dt['temp']))
+            
 
             if self.lb_humid.text()!=str(dt['humid']):
                 self.lb_humid.setText(str(dt['humid']))
@@ -886,9 +963,9 @@ try:
             
             
         def updateAnalog(self,dt):
-            print('data from analog thread:',dt)
+            # print('data from analog thread:',dt)
             if self.start == True:
-                now = timestamp()
+                now = dt['time']
                 if len(self.time_stamp_analog)>self.maxLen:
                     self.time_stamp_analog.popleft()
                     self.list_o2n.popleft()
@@ -930,18 +1007,18 @@ try:
                 self.lb_elec.setText(str(dt['ec']))
         
         def updateCo2(self,dt):
-            print('co2:',dt)
+            # print('co2:',dt)
             if self.start == True:
-                now = timestamp()
+                now = dt['time']
                 if len(self.time_stamp_co2)>self.maxLen:
                     self.time_stamp_co2.popleft()
                     self.list_co2.popleft()
                 self.time_stamp_co2.append(now)
-                self.list_co2.append(dt)
+                self.list_co2.append(dt['co2'])
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 5:
-                    self.gaugeCO2.update_value(dt)
+                    self.gaugeCO2.update_value(dt['co2'])
                     self.line_co2.setData(self.time_stamp_co2,self.line_co2)
                 
                 #update table
@@ -949,24 +1026,24 @@ try:
                 now_str=datetime.fromtimestamp(now).strftime("%H:%M:%S.%f")[:-5]
                 if count > self.maxRow:
                     self.tableCO2.removeRow(count-1)
-                rowData = [now_str,dt]
+                rowData = [now_str,dt['co2']]
                 self.insertFirstRow(self.tableCO2,rowData)
-            if self.lb_co2.text()!= str(dt):
-                self.lb_co2.setText(str(dt))
+            if self.lb_co2.text()!= str(dt['co2']):
+                self.lb_co2.setText(str(dt['co2']))
 
         def updateSound(self,dt):
-            print('sound:',dt)
+            # print('sound:',dt)
             if self.start == True:
-                now = timestamp()
+                now = dt['time']
                 if len(self.time_stamp_sound)>self.maxLen:
                     self.time_stamp_sound.popleft()
                     self.list_sound.popleft()
                 self.time_stamp_sound.append(now)
-                self.list_sound.append(dt)
+                self.list_sound.append(dt['sound'])
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 6:
-                    self.gaugeSound.update_value(dt)
+                    self.gaugeSound.update_value(dt['sound'])
                     self.line_sound.setData(self.time_stamp_sound,self.list_sound)
                 
                 #update table
@@ -974,11 +1051,11 @@ try:
                 count = self.tableSound.rowCount()
                 if count > self.maxRow:
                     self.tableSound.removeRow(count-1)
-                rowData = [now_str,dt]
+                rowData = [now_str,dt['sound']]
                 self.insertFirstRow(self.tableSound,rowData)
 
-            if self.lb_sound.text()!=str(dt):
-                self.lb_sound.setText(str(dt))
+            if self.lb_sound.text()!=str(dt['sound']):
+                self.lb_sound.setText(str(dt['sound']))
 
 
         #event clicked buttons
@@ -990,6 +1067,7 @@ try:
 
                 #reset data
                 self.time_stamp_temp=deque([])
+                self.time_stamp_digital=deque([])
                 self.time_stamp_co2=deque([])
                 self.time_stamp_sound=deque([])
                 self.time_stamp_analog=deque([])
@@ -1071,19 +1149,29 @@ try:
         def goHistory(self):
             self.stackedWidget.setCurrentIndex(10)
 
-        def closeEvent(self, e):
-            self.goClose()
-        
-        def goClose(self):
+        def closeEvent(self, QCloseEvent):
+            print('close app!')
             self.readInternet.stop()
             self.sensorStatus.stop()
             self.soundSensor.stop()
             self.co2Sensor.stop()
             self.tempSensor.stop()
             self.adcSensor.stop()
-            # self.readStatus.stop()
+            self.digitalSensor.stop()
             self.timer.stop()
             self.runMeasure.stop()
+            # self.goClose()
+        
+        def goClose(self):
+            # self.readInternet.stop()
+            # self.sensorStatus.stop()
+            # self.soundSensor.stop()
+            # self.co2Sensor.stop()
+            # self.tempSensor.stop()
+            # self.adcSensor.stop()
+            # self.readStatus.stop()
+            # self.timer.stop()
+            # self.runMeasure.stop()
 
             # db_close()
             self.close()
@@ -1097,17 +1185,17 @@ try:
             self.stackedWidget.setCurrentIndex(2)
             if len(self.list_humid)>0:
                 self.gaugeHumid.update_value(self.list_humid[-1])
-                self.line_humid.setData(self.time_stamp_temp,self.list_humid)
+                self.line_humid.setData(self.time_stamp_digital,self.list_humid)
         def goPress(self):
             self.stackedWidget.setCurrentIndex(3)
             if len(self.list_press)>0:
                 self.gaugePress.update_value(self.list_press[-1])
-                self.line_press.setData(self.time_stamp_temp,self.list_press)
+                self.line_press.setData(self.time_stamp_digital,self.list_press)
         def goO2kk(self):
             self.stackedWidget.setCurrentIndex(4)  
             if len(self.list_o2kk)>0:
                 self.gaugeO2kk.update_value(self.list_o2kk[-1])
-                self.line_o2kk.setData(self.time_stamp_temp,self.list_o2kk)
+                self.line_o2kk.setData(self.time_stamp_digital,self.list_o2kk)
         def goCo2(self):
             self.stackedWidget.setCurrentIndex(5)
             if len(self.list_co2)>0:
