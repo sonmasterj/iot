@@ -3,7 +3,7 @@ import glob
 
 from matplotlib.pyplot import title
 import assets_qrc
-from random import randint
+# from random import randint
 from PyQt5.QtWidgets import  QFileDialog, QMainWindow,QApplication,QTableWidgetItem,  QDialog,QMessageBox,QGraphicsDropShadowEffect,QFileDialog,QHeaderView
 from PyQt5 import uic
 from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime
@@ -35,7 +35,7 @@ try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
 
-    SLOW_INTERVAL = 5000
+    SLOW_INTERVAL = 4000
     FAST_INTERVAL = 300
 
     add1_1=13
@@ -88,7 +88,7 @@ try:
         except socket.error:
             return 0
     def timestamp():
-        return (datetime.now().timestamp())
+        return int(datetime.now().timestamp())
 
     #thread check sensor
     class checkThread(QThread):
@@ -284,7 +284,7 @@ try:
                 if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
                     for i in range(4):
                         if portA[i]==3:
-                            _ec = convertWaterOxygen(raw_adc[i])
+                            _ec = convertEC(raw_adc[i])
                             break       
                   
 
@@ -373,7 +373,9 @@ try:
             #array store sensor data
             self.maxLen=40
             self.maxRow=20
-            self.time_stamp=deque([])
+            self.time_stamp_temp=deque([])
+            self.time_stamp_co2=deque([])
+            self.time_stamp_sound=deque([])
             self.list_temp=deque([])
             self.list_humid=deque([])
             self.list_press=deque([])
@@ -426,7 +428,7 @@ try:
 
             #set up timer running measure
             self.runMeasure = QTimer()
-            self.runMeasure.setInterval(1*60*1000)
+            self.runMeasure.setInterval(1*30*1000)
             self.runMeasure.timeout.connect(self.stopMeasure)
 
             #set up internet thread
@@ -456,40 +458,40 @@ try:
 
             #init table
             header1= self.tableTemp.horizontalHeader()
-            header1.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header1.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header2= self.tableHumid.horizontalHeader()
-            header2.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header2.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header3= self.tablePress.horizontalHeader()
-            header3.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header3.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header4= self.tableO2kk.horizontalHeader()
-            header4.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header4.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header5= self.tableCO2.horizontalHeader()
-            header5.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header5.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header6= self.tableSound.horizontalHeader()
-            header6.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header6.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header7= self.tablePH.horizontalHeader()
-            header7.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header7.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header8= self.tableO2N.horizontalHeader()
-            header8.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header8.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header9= self.tableElec.horizontalHeader()
-            header9.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header9.setSectionResizeMode(0, QHeaderView.Stretch)
 
             header10= self.tableSensor_2.horizontalHeader()
-            header10.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header10.setSectionResizeMode(0, QHeaderView.Stretch)
             pg.setConfigOption('foreground', 'k')
 
             pen = pg.mkPen(color=(255, 0, 0))
             #page temperature
             self.graphTemp = pg.PlotWidget(title='Đồ thị nhiệt độ',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nhiệt độ(℃)')
-            self.line_temp = self.graphTemp.plot(self.time_stamp,self.list_temp,pen=pen)
+            self.line_temp = self.graphTemp.plot(self.time_stamp_temp,self.list_temp,pen=pen)
             self.graphTemp.setMenuEnabled(False)
             self.graphTemp.setBackground('w')
             self.verticalLayout_6.addWidget(self.graphTemp,0)
@@ -508,7 +510,7 @@ try:
 
             #page humidity
             self.graphHumid = pg.PlotWidget(title='Đồ thị độ ẩm',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ ẩm(%)')
-            self.line_humid = self.graphHumid.plot(self.time_stamp,self.list_humid,pen=pen)
+            self.line_humid = self.graphHumid.plot(self.time_stamp_temp,self.list_humid,pen=pen)
             self.graphHumid.setMenuEnabled(False)
             self.graphHumid.setBackground('w')
             self.verticalLayout_7.addWidget(self.graphHumid,0)
@@ -527,7 +529,7 @@ try:
 
             #page press
             self.graphPress = pg.PlotWidget(title='Đồ thị áp suất',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Áp suất(kPa)')
-            self.line_press = self.graphPress.plot(self.time_stamp,self.list_press,pen=pen)
+            self.line_press = self.graphPress.plot(self.time_stamp_temp,self.list_press,pen=pen)
             self.graphPress.setMenuEnabled(False)
             self.graphPress.setBackground('w')
             self.verticalLayout_8.addWidget(self.graphPress,0)
@@ -546,7 +548,7 @@ try:
 
             #page O2 KK
             self.graphO2kk = pg.PlotWidget(title='Đồ thị nồng độ O2 trong không khí',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'N.độ O2 trong không khí(%Vol)')
-            self.line_o2kk = self.graphO2kk.plot(self.time_stamp,self.list_o2kk,pen=pen)
+            self.line_o2kk = self.graphO2kk.plot(self.time_stamp_temp,self.list_o2kk,pen=pen)
             self.graphO2kk.setMenuEnabled(False)
             self.graphO2kk.setBackground('w')
             self.verticalLayout_9.addWidget(self.graphO2kk,0)
@@ -566,7 +568,7 @@ try:
 
             #page CO2
             self.graphCO2 = pg.PlotWidget(title='Đồ thị nồng độ CO2',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ CO2(ppm)')
-            self.line_co2 = self.graphCO2.plot(self.time_stamp,self.list_co2,pen=pen)
+            self.line_co2 = self.graphCO2.plot(self.time_stamp_co2,self.list_co2,pen=pen)
             self.graphCO2.setMenuEnabled(False)
             self.graphCO2.setBackground('w')
             self.verticalLayout_10.addWidget(self.graphCO2,0)
@@ -586,7 +588,7 @@ try:
 
             #page sound
             self.graphSound = pg.PlotWidget(title='Đồ thị cường độ âm thanh',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Cường độ âm thanh(dBA)')
-            self.line_sound = self.graphSound.plot(self.time_stamp,self.list_sound,pen=pen)
+            self.line_sound = self.graphSound.plot(self.time_stamp_sound,self.list_sound,pen=pen)
             self.graphSound.setMenuEnabled(False)
             self.graphSound.setBackground('w')
             self.verticalLayout_11.addWidget(self.graphSound,0)
@@ -606,7 +608,7 @@ try:
 
             #page PH
             self.graphPH = pg.PlotWidget(title='Đồ thị độ PH',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'PH(pH)')
-            self.line_ph = self.graphPH.plot(self.time_stamp,self.list_pH,pen=pen)
+            self.line_ph = self.graphPH.plot(self.time_stamp_temp,self.list_pH,pen=pen)
             self.graphPH.setMenuEnabled(False)
             self.graphPH.setBackground('w')
             self.verticalLayout_12.addWidget(self.graphPH,0)
@@ -626,7 +628,7 @@ try:
 
             #page O2 nuoc
             self.graphO2n = pg.PlotWidget(title='Đồ thị nồng độ O2 trong nước',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ O2 trong nước(mg/L)')
-            self.line_o2n = self.graphO2n.plot(self.time_stamp,self.list_o2n,pen=pen)
+            self.line_o2n = self.graphO2n.plot(self.time_stamp_temp,self.list_o2n,pen=pen)
             self.graphO2n.setMenuEnabled(False)
             self.graphO2n.setBackground('w')
             self.verticalLayout_13.addWidget(self.graphO2n,0)
@@ -645,7 +647,7 @@ try:
 
             #page Electron
             self.graphElec = pg.PlotWidget(title='Đồ thị độ dẫn điện',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ dẫn điện(ms/cm)')
-            self.line_ec = self.graphElec.plot(self.time_stamp,self.list_ec,pen=pen)
+            self.line_ec = self.graphElec.plot(self.time_stamp_temp,self.list_ec,pen=pen)
             self.graphElec.setMenuEnabled(False)
             self.graphElec.setBackground('w')
             self.verticalLayout_14.addWidget(self.graphElec,0)
@@ -676,6 +678,8 @@ try:
             self.lb_datetime.setText(now)
 
         def stopMeasure(self):
+            
+            self.runMeasure.stop()
             self.start = False
             self.btn_run.setIcon(QIcon(':/img/play.svg'))
             self.btn_run.setText('Chạy')
@@ -786,8 +790,8 @@ try:
             print('data from temp thread:',dt)
             if self.start == True:
                 now = timestamp()
-                if len(self.time_stamp)>self.maxLen:
-                    self.time_stamp.popleft()
+                if len(self.time_stamp_temp)>self.maxLen:
+                    self.time_stamp_temp.popleft()
                     self.list_temp.popleft()
                     self.list_humid.popleft()
                     self.list_press.popleft()
@@ -796,7 +800,7 @@ try:
                     self.list_sound.popleft()
                     self.list_pH.popleft()
                     self.list_ec.popleft()
-                self.time_stamp.append(now)
+                self.time_stamp_temp.append(now)
                 self.list_temp.append(dt['temp'])
                 self.list_humid.append(dt['humid'])
                 self.list_press.append(dt['press'])
@@ -810,25 +814,25 @@ try:
                 #page temp
                 if currentPage==1:
                     self.gaugeTemp.update_value(dt['temp'])
-                    self.line_temp.setData(self.time_stamp,self.list_temp)
+                    self.line_temp.setData(self.time_stamp_temp,self.list_temp)
                 elif currentPage ==2:
                     self.gaugeHumid.update_value(dt['humid'])
-                    self.line_humid.setData(self.time_stamp,self.list_humid)
+                    self.line_humid.setData(self.time_stamp_temp,self.list_humid)
                 elif currentPage ==3:
                     self.gaugePress.update_value(dt['press'])
-                    self.line_press.setData(self.time_stamp,self.list_press)
+                    self.line_press.setData(self.time_stamp_temp,self.list_press)
                 elif currentPage ==4:
                     self.gaugeO2kk.update_value(dt['air_oxy'])
-                    self.line_humid.setData(self.time_stamp,self.list_o2kk)
+                    self.line_o2kk.setData(self.time_stamp_temp,self.list_o2kk)
                 elif currentPage ==7:
                     self.gaugePH.update_value(dt['pH'])
-                    self.line_ph.setData(self.time_stamp,self.list_pH)
+                    self.line_ph.setData(self.time_stamp_temp,self.list_pH)
                 elif currentPage ==8:
                     self.gaugeO2n.update_value(dt['water_oxy'])
-                    self.line_o2n.setData(self.time_stamp,self.list_o2n)
+                    self.line_o2n.setData(self.time_stamp_temp,self.list_o2n)
                 elif currentPage ==9:
                     self.gaugeElec.update_value(dt['ec'])
-                    self.line_ec.setData(self.time_stamp,self.list_ec)
+                    self.line_ec.setData(self.time_stamp_temp,self.list_ec)
 
 
                 #update table
@@ -848,7 +852,7 @@ try:
                 self.insertFirstRow(self.tablePH,[now_str,dt['pH']])
                 self.insertFirstRow(self.tableO2N,[now_str,dt['water_oxy']])
                 self.insertFirstRow(self.tableElec,[now_str,dt['ec']])
-                self.insertFirstRow(self.tableO2N,[now_str,dt['air_oxy']])
+                self.insertFirstRow(self.tableO2kk,[now_str,dt['air_oxy']])
                 
 
 
@@ -877,16 +881,16 @@ try:
             print('co2:',dt)
             if self.start == True:
                 now = timestamp()
-                if len(self.time_stamp)>self.maxLen:
-                    self.time_stamp.popleft()
+                if len(self.time_stamp_co2)>self.maxLen:
+                    self.time_stamp_co2.popleft()
                     self.list_co2.popleft()
-                self.time_stamp.append(now)
+                self.time_stamp_co2.append(now)
                 self.list_co2.append(dt)
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 5:
                     self.gaugeCO2.update_value(dt)
-                    self.line_co2.setData(self.time_stamp,self.line_co2)
+                    self.line_co2.setData(self.time_stamp_co2,self.line_co2)
                 
                 #update table
                 count = self.tableCO2.rowCount()
@@ -902,16 +906,16 @@ try:
             print('sound:',dt)
             if self.start == True:
                 now = timestamp()
-                if len(self.time_stamp)>self.maxLen:
-                    self.time_stamp.popleft()
+                if len(self.time_stamp_sound)>self.maxLen:
+                    self.time_stamp_sound.popleft()
                     self.list_sound.popleft()
-                self.time_stamp.append(now)
+                self.time_stamp_sound.append(now)
                 self.list_sound.append(dt)
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 6:
                     self.gaugeSound.update_value(dt)
-                    self.line_sound.setData(self.time_stamp,self.list_sound)
+                    self.line_sound.setData(self.time_stamp_sound,self.list_sound)
                 
                 #update table
                 now_str=datetime.fromtimestamp(now).strftime("%H:%M:%S.%f")[:-5]
@@ -933,7 +937,9 @@ try:
                 self.btn_run.setText('Dừng')
 
                 #reset data
-                self.time_stamp=deque([])
+                self.time_stamp_temp=deque([])
+                self.time_stamp_co2=deque([])
+                self.time_stamp_sound=deque([])
                 self.list_temp=deque([])
                 self.list_humid=deque([])
                 self.list_press=deque([])
@@ -954,6 +960,18 @@ try:
                 self.gaugePH.update_value(0)
                 self.gaugeO2n.update_value(0)
                 self.gaugeElec.update_value(0)
+
+                #reset graph
+                self.line_temp.setData(self.time_stamp_temp,self.list_temp)
+                self.line_humid.setData(self.time_stamp_temp,self.list_temp)
+                self.line_press.setData(self.time_stamp_temp,self.list_temp)
+                self.line_co2.setData(self.time_stamp_temp,self.list_temp)
+                self.line_o2kk.setData(self.time_stamp_temp,self.list_temp)
+                self.line_sound.setData(self.time_stamp_temp,self.list_temp)
+                self.line_o2n.setData(self.time_stamp_temp,self.list_temp)
+                self.line_ph.setData(self.time_stamp_temp,self.list_temp)
+                self.line_ec.setData(self.time_stamp_temp,self.list_temp)
+
 
                 #reset table
                 model =  self.tableTemp.model()
@@ -988,10 +1006,12 @@ try:
 
                 model =  self.tableElec.model()
                 model.removeRows(0,model.rowCount())
+                self.runMeasure.start()
             else:
                 self.start = False
                 self.btn_run.setIcon(QIcon(':/img/play.svg'))
                 self.btn_run.setText('Chạy')
+                self.runMeasure.stop()
         # go to Pages
         def goHome(self):
             self.stackedWidget.setCurrentIndex(0)  
@@ -1008,49 +1028,49 @@ try:
         
         def goTemp(self):
             self.stackedWidget.setCurrentIndex(1)
-            if self.start == True:
+            if len(self.list_temp)>0:
                 self.gaugeTemp.update_value(self.list_temp[-1])
-                self.line_temp.setData(self.time_stamp,self.list_temp) 
+                self.line_temp.setData(self.time_stamp_temp,self.list_temp) 
         def goHumid(self):
             self.stackedWidget.setCurrentIndex(2)
-            if self.start == True:
+            if len(self.list_humid)>0:
                 self.gaugeHumid.update_value(self.list_humid[-1])
-                self.line_humid.setData(self.time_stamp,self.list_humid)
+                self.line_humid.setData(self.time_stamp_temp,self.list_humid)
         def goPress(self):
             self.stackedWidget.setCurrentIndex(3)
-            if self.start == True:
+            if len(self.list_press)>0:
                 self.gaugePress.update_value(self.list_press[-1])
-                self.line_press.setData(self.time_stamp,self.list_press)
+                self.line_press.setData(self.time_stamp_temp,self.list_press)
         def goO2kk(self):
             self.stackedWidget.setCurrentIndex(4)  
-            if self.start == True:
+            if len(self.list_o2kk)>0:
                 self.gaugeO2kk.update_value(self.list_o2kk[-1])
-                self.line_o2kk.setData(self.time_stamp,self.list_o2kk)
+                self.line_o2kk.setData(self.time_stamp_temp,self.list_o2kk)
         def goCo2(self):
             self.stackedWidget.setCurrentIndex(5)
-            if self.start == True:
+            if len(self.list_co2)>0:
                 self.gaugeCO2.update_value(self.list_co2[-1])
-                self.line_co2.setData(self.time_stamp,self.list_co2)
+                self.line_co2.setData(self.time_stamp_co2,self.list_co2)
         def goSound(self):
             self.stackedWidget.setCurrentIndex(6)
-            if self.start == True:
+            if len(self.list_sound)>0:
                 self.gaugeSound.update_value(self.list_sound[-1])
-                self.line_sound.setData(self.time_stamp,self.list_sound)
+                self.line_sound.setData(self.time_stamp_sound,self.list_sound)
         def goPh(self):
             self.stackedWidget.setCurrentIndex(7)  
-            if self.start == True:
+            if len(self.list_pH)>0:
                 self.gaugePH.update_value(self.list_pH[-1])
-                self.line_ph.setData(self.time_stamp,self.list_pH)
+                self.line_ph.setData(self.time_stamp_temp,self.list_pH)
         def goO2n(self):
             self.stackedWidget.setCurrentIndex(8)
-            if self.start == True:
+            if len(self.list_o2n)>0:
                 self.gaugeO2n.update_value(self.list_o2n[-1])
-                self.line_o2n.setData(self.time_stamp,self.list_o2n)
+                self.line_o2n.setData(self.time_stamp_temp,self.list_o2n)
         def goElec(self):
             self.stackedWidget.setCurrentIndex(9)
-            if self.start == True:
+            if len(self.list_ec)>0:
                 self.gaugeElec.update_value(self.list_ec[-1])
-                self.line_ec.setData(self.time_stamp,self.list_ec)
+                self.line_ec.setData(self.time_stamp_temp,self.list_ec)
         
         def insertFirstRow(self,table,row_data):
             col=0
