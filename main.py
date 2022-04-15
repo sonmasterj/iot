@@ -38,6 +38,7 @@ try:
     SLOW_INTERVAL = 4000
     FAST_INTERVAL = 300
     MAX_STEPS = 10
+    TIME_MEASURE = 30 # 5 phut
 
     add1_1=13
     add1_2=16
@@ -517,7 +518,7 @@ try:
 
             #set up timer running measure
             self.runMeasure = QTimer()
-            self.runMeasure.setInterval(1*30*1000)
+            self.runMeasure.setInterval(TIME_MEASURE*60*1000)
             self.runMeasure.timeout.connect(self.stopMeasure)
 
             #set up internet thread
@@ -589,7 +590,7 @@ try:
             pen = pg.mkPen(color=(255, 0, 0))
             #page temperature
             self.graphTemp = pg.PlotWidget(title='Đồ thị nhiệt độ',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nhiệt độ(℃)')
-            self.line_temp = self.graphTemp.plot(self.time_stamp_temp,self.list_temp,pen=pen)
+            self.line_temp = self.graphTemp.plot(self.time_stamp_temp,self.list_temp,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphTemp.setMenuEnabled(False)
             self.graphTemp.setBackground('w')
             self.verticalLayout_6.addWidget(self.graphTemp,0)
@@ -608,7 +609,7 @@ try:
 
             #page humidity
             self.graphHumid = pg.PlotWidget(title='Đồ thị độ ẩm',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ ẩm(%)')
-            self.line_humid = self.graphHumid.plot(self.time_stamp_temp,self.list_humid,pen=pen)
+            self.line_humid = self.graphHumid.plot(self.time_stamp_temp,self.list_humid,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphHumid.setMenuEnabled(False)
             self.graphHumid.setBackground('w')
             self.verticalLayout_7.addWidget(self.graphHumid,0)
@@ -627,7 +628,7 @@ try:
 
             #page press
             self.graphPress = pg.PlotWidget(title='Đồ thị áp suất',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Áp suất(kPa)')
-            self.line_press = self.graphPress.plot(self.time_stamp_temp,self.list_press,pen=pen)
+            self.line_press = self.graphPress.plot(self.time_stamp_temp,self.list_press,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphPress.setMenuEnabled(False)
             self.graphPress.setBackground('w')
             self.verticalLayout_8.addWidget(self.graphPress,0)
@@ -646,7 +647,7 @@ try:
 
             #page O2 KK
             self.graphO2kk = pg.PlotWidget(title='Đồ thị nồng độ O2 trong không khí',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'N.độ O2 trong không khí(%Vol)')
-            self.line_o2kk = self.graphO2kk.plot(self.time_stamp_temp,self.list_o2kk,pen=pen)
+            self.line_o2kk = self.graphO2kk.plot(self.time_stamp_temp,self.list_o2kk,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphO2kk.setMenuEnabled(False)
             self.graphO2kk.setBackground('w')
             self.verticalLayout_9.addWidget(self.graphO2kk,0)
@@ -666,7 +667,7 @@ try:
 
             #page CO2
             self.graphCO2 = pg.PlotWidget(title='Đồ thị nồng độ CO2',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ CO2(ppm)')
-            self.line_co2 = self.graphCO2.plot(self.time_stamp_co2,self.list_co2,pen=pen)
+            self.line_co2 = self.graphCO2.plot(self.time_stamp_co2,self.list_co2,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphCO2.setMenuEnabled(False)
             self.graphCO2.setBackground('w')
             self.verticalLayout_10.addWidget(self.graphCO2,0)
@@ -686,7 +687,7 @@ try:
 
             #page sound
             self.graphSound = pg.PlotWidget(title='Đồ thị cường độ âm thanh',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Cường độ âm thanh(dBA)')
-            self.line_sound = self.graphSound.plot(self.time_stamp_sound,self.list_sound,pen=pen)
+            self.line_sound = self.graphSound.plot(self.time_stamp_sound,self.list_sound,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphSound.setMenuEnabled(False)
             self.graphSound.setBackground('w')
             self.verticalLayout_11.addWidget(self.graphSound,0)
@@ -706,7 +707,7 @@ try:
 
             #page PH
             self.graphPH = pg.PlotWidget(title='Đồ thị độ PH',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'PH(pH)')
-            self.line_ph = self.graphPH.plot(self.time_stamp_temp,self.list_pH,pen=pen)
+            self.line_ph = self.graphPH.plot(self.time_stamp_temp,self.list_pH,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphPH.setMenuEnabled(False)
             self.graphPH.setBackground('w')
             self.verticalLayout_12.addWidget(self.graphPH,0)
@@ -726,7 +727,7 @@ try:
 
             #page O2 nuoc
             self.graphO2n = pg.PlotWidget(title='Đồ thị nồng độ O2 trong nước',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Nồng độ O2 trong nước(mg/L)')
-            self.line_o2n = self.graphO2n.plot(self.time_stamp_temp,self.list_o2n,pen=pen)
+            self.line_o2n = self.graphO2n.plot(self.time_stamp_temp,self.list_o2n,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphO2n.setMenuEnabled(False)
             self.graphO2n.setBackground('w')
             self.verticalLayout_13.addWidget(self.graphO2n,0)
@@ -745,7 +746,7 @@ try:
 
             #page Electron
             self.graphElec = pg.PlotWidget(title='Đồ thị độ dẫn điện',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Độ dẫn điện(ms/cm)')
-            self.line_ec = self.graphElec.plot(self.time_stamp_temp,self.list_ec,pen=pen)
+            self.line_ec = self.graphElec.plot(self.time_stamp_temp,self.list_ec,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphElec.setMenuEnabled(False)
             self.graphElec.setBackground('w')
             self.verticalLayout_14.addWidget(self.graphElec,0)
