@@ -16,7 +16,7 @@ class DS18B20():
         try:
             lines = self.read_temp_raw()
             while lines[0].strip()[-3:] != 'YES':
-                delay(0.01)
+                delay(0.03)
                 lines = self.read_temp_raw()
             equals_pos = lines[1].find('t=')
             if equals_pos != -1:

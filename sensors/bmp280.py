@@ -51,7 +51,7 @@ class BMP280:
             # Select Configuration register, 0xF5(245)
             # 0xA0(00) Stand_by time = 500 ms
             self.bus.write_byte_data(0x76, 0xF5, 0x80)
-            delay(0.1)
+            delay(0.05)
             # BMP280 address, 0x76(118)
             # Read data back from 0xF7(247), 8 bytes
             # Pressure MSB, Pressure LSB, Pressure xLSB, Temperature MSB, Temperature LSB

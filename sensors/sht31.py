@@ -41,7 +41,7 @@ class SHT31():
         try:
             COMMAND = [SHT31_MEAS_HIGH_REP_STRETCH_EN]
             self.bus.write_i2c_block_data(SHT31_DEFAULT_ADDRESS, SHT31_MEAS_REP_STRETCH_EN, COMMAND)
-            delay(0.1)
+            delay(0.05)
             data = self.bus.read_i2c_block_data(SHT31_DEFAULT_ADDRESS, 6)
             
             # temp=None

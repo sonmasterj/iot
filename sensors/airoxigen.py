@@ -32,7 +32,7 @@ class DFRobot_Oxygen(object):
       self.__key = (20.9 / 120.0)
     else:
       self.__key = (float(rslt[0]) / 1000.0)
-    delay(0.1)
+    delay(0.05)
   
   def calibrate(self, vol, mv):
     '''!
