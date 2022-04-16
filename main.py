@@ -27,6 +27,7 @@ from sensors.ec import convertEC
 from sensors.ADS1x15 import ADS1115
 import smbus
 from collections import deque
+from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound
 view_path = 'iot.ui'
 application_path =os.path.dirname(os.path.abspath(__file__)) 
 curren_path = os.path.join(application_path,os.pardir)
@@ -38,7 +39,7 @@ try:
     SLOW_INTERVAL = 4000
     FAST_INTERVAL = 300
     MAX_STEPS = 10
-    TIME_MEASURE = 30 # 5 phut
+    TIME_MEASURE = 1 # 5 phut
 
     add1_1=13
     add1_2=16
@@ -457,6 +458,9 @@ try:
             self.listSensorStatus=[0]*9
             self.internetStatus='0'
             self.start = False
+            self.totalTime = TIME_MEASURE*60
+            self.event_start = None
+            self.event_stop = None
 
             #array store sensor data
             self.maxLen=40
@@ -476,6 +480,12 @@ try:
             self.list_ec=deque([])
             self.list_co2=deque([])
 
+            self.list_digital_full=deque([])
+            self.list_analog_full=deque([])
+            self.list_co2_full=deque([])
+            self.list_sound_full=deque([])
+            self.list_temp_full=deque([])
+
             #set button events
             self.btn_home.clicked.connect(self.goHome)
             self.btn_history.clicked.connect(self.goHistory)
@@ -493,6 +503,8 @@ try:
             self.btn_ph.clicked.connect(self.goPh)
             self.btn_o2n.clicked.connect(self.goO2n)
             self.btn_elec.clicked.connect(self.goElec)
+
+            self.checkLast.stateChanged.connect(self.changeCheckbox)
 
             
 
@@ -771,18 +783,53 @@ try:
             
 
             
-        
+        def changeCheckbox(self,dt):
+            # print('checkboox:',dt)
+            state = self.checkLast.isChecked()
+            if state == False or self.event_stop==None:
+                return
+            start = datetime.fromtimestamp(self.event_start)
+            end = datetime.fromtimestamp(self.event_stop)
+
+            dStart = QDate(start.year,start.month,start.day)
+            dEnd = QDate(end.year,end.month,end.day)
+
+            tStart = QTime(start.hour,start.minute,start.second)
+            tEnd = QTime(end.hour,end.minute,end.second)
+
+            
         def showTime(self):
             now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             self.lb_datetime.setText(now)
+            if self.start == True:
+                self.totalTime= self.totalTime-1
+                if self.totalTime<0:
+                    self.totalTime=0
+                _min = str(int(self.totalTime/60)).rjust(2,'0')
+                _sec = str(self.totalTime%60).rjust(2,'0')
+                self.lb_total_time.setText('Thời gian còn lại: {min}:{sec}'.format(min=_min,sec=_sec))
+                
 
         def stopMeasure(self):
             
             self.runMeasure.stop()
+            self.event_stop = timestamp()
             self.start = False
             self.btn_run.setIcon(QIcon(':/img/play.svg'))
             self.btn_run.setText('Chạy')
             QMessageBox.information(self, 'Thông báo', 'Hoàn thành việc đo cảm biến!', QMessageBox.Ok)
+            self.lb_total_time.setText('Thời gian còn lại: --:--')
+            try:
+                # start = timestamp()
+                Temp.insert_many(self.list_temp_full).execute()
+                CO2.insert_many(self.list_co2_full).execute()
+                Digital.insert_many(self.list_digital_full).execute()
+                Analog.insert_many(self.list_analog_full).execute()
+                Sound.insert_many(self.list_sound_full).execute()
+                # end = timestamp()
+                # print('save db spend :',end-start)
+            except Exception as ex:
+                print("error write data to db:",ex)
         
         def updateInternet(self,dt):
             # print('internet status:',dt)
@@ -894,6 +941,7 @@ try:
                     self.list_temp.popleft()
                 self.time_stamp_temp.append(now)
                 self.list_temp.append(dt['temp'])
+                self.list_temp_full.append(dt)
                 currentPage = self.stackedWidget.currentIndex()
                 #page temp
                 if currentPage==1:
@@ -916,6 +964,7 @@ try:
                     self.list_humid.popleft()
                     self.list_press.popleft()
                     self.list_o2kk.popleft()
+                self.list_digital_full.append(dt)
                 self.time_stamp_digital.append(now)
                 self.list_humid.append(dt['humid'])
                 self.list_press.append(dt['press'])
@@ -972,6 +1021,7 @@ try:
                     self.list_o2n.popleft()
                     self.list_pH.popleft()
                     self.list_ec.popleft()
+                self.list_analog_full.append(dt)
                 self.time_stamp_analog.append(now)
                 self.list_o2n.append(dt['water_oxy'])
                 self.list_pH.append(dt['pH'])
@@ -1016,6 +1066,7 @@ try:
                     self.list_co2.popleft()
                 self.time_stamp_co2.append(now)
                 self.list_co2.append(dt['co2'])
+                self.list_co2_full.append(dt)
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 5:
@@ -1041,6 +1092,8 @@ try:
                     self.list_sound.popleft()
                 self.time_stamp_sound.append(now)
                 self.list_sound.append(dt['sound'])
+
+                self.list_sound_full.append(dt)
 
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 6:
@@ -1081,6 +1134,12 @@ try:
                 self.list_pH=deque([])
                 self.list_ec=deque([])
                 self.list_co2=deque([])
+
+                self.list_digital_full=deque([])
+                self.list_analog_full=deque([])
+                self.list_co2_full=deque([])
+                self.list_sound_full=deque([])
+                self.list_temp_full=deque([])
 
                 #reset gauge
                 self.gaugeTemp.update_value(0)
@@ -1138,12 +1197,38 @@ try:
 
                 model =  self.tableElec.model()
                 model.removeRows(0,model.rowCount())
+                self.totalTime = TIME_MEASURE*60
+                self.lb_total_time.setText('Thời gian còn lại: --:--')
+                self.event_start = timestamp()
+                self.event_stop = None
                 self.runMeasure.start()
             else:
+                # self.totalTime = TIME_MEASURE*60
+                newMessBox = QMessageBox(self)
+                newMessBox.setIcon(QMessageBox.Warning)
+                newMessBox.setText("Bạn có chắc chắn muốn dừng đo?")
+                newMessBox.setWindowTitle("Thông báo")
+                newMessBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+                returnValue = newMessBox.exec()
+
+                if returnValue == QMessageBox.No:
+                    return
                 self.start = False
                 self.btn_run.setIcon(QIcon(':/img/play.svg'))
                 self.btn_run.setText('Chạy')
                 self.runMeasure.stop()
+                self.event_stop = timestamp()
+                try:
+                    # start = timestamp()
+                    Temp.insert_many(self.list_temp_full).execute()
+                    CO2.insert_many(self.list_co2_full).execute()
+                    Digital.insert_many(self.list_digital_full).execute()
+                    Analog.insert_many(self.list_analog_full).execute()
+                    Sound.insert_many(self.list_sound_full).execute()
+                    # end = timestamp()
+                    # print('save db spend :',end-start)
+                except Exception as ex:
+                    print("error write data to db:",ex)
         # go to Pages
         def goHome(self):
             self.stackedWidget.setCurrentIndex(0)  
@@ -1161,6 +1246,7 @@ try:
             self.digitalSensor.stop()
             self.timer.stop()
             self.runMeasure.stop()
+            db_close()
             # self.goClose()
         
         def goClose(self):
@@ -1175,6 +1261,15 @@ try:
             # self.runMeasure.stop()
 
             # db_close()
+            newMessBox = QMessageBox(self)
+            newMessBox.setIcon(QMessageBox.Warning)
+            newMessBox.setText("Bạn có chắc chắn muốn thoát phần mềm?")
+            newMessBox.setWindowTitle("Thông báo")
+            newMessBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            returnValue = newMessBox.exec()
+
+            if returnValue == QMessageBox.No:
+                return
             self.close()
         
         def goTemp(self):
@@ -1234,7 +1329,7 @@ try:
                 col+=1
 
     if __name__ == "__main__":
-        # creat_table()
+        creat_table()
         app = QApplication(sys.argv)
         # window = Home("s")
         # window.show()
