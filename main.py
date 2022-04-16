@@ -1,7 +1,7 @@
 import os
 import glob
 
-from matplotlib.pyplot import title
+# from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
 from PyQt5.QtWidgets import  QFileDialog, QMainWindow,QApplication,QTableWidgetItem,  QDialog,QMessageBox,QGraphicsDropShadowEffect,QFileDialog,QHeaderView
@@ -79,7 +79,9 @@ try:
         except Exception as ex:
             print('error set up pin ',pin)
 
-    
+    def convertTime(time):
+        t = datetime.fromtimestamp(time)
+        return t.strftime('%d/%m/%Y %H:%M:%S:%f')[:-5]
     def checkInternet():
         host='1.1.1.1'
         port = 53
@@ -461,6 +463,7 @@ try:
             self.totalTime = TIME_MEASURE*60
             self.event_start = None
             self.event_stop = None
+            self.selectedSensor = -1
 
             #array store sensor data
             self.maxLen=40
@@ -503,6 +506,11 @@ try:
             self.btn_ph.clicked.connect(self.goPh)
             self.btn_o2n.clicked.connect(self.goO2n)
             self.btn_elec.clicked.connect(self.goElec)
+
+            self.btn_search.clicked.connect(self.searchData)
+            # self.btn_export.clicked.connect(self.exportData)
+            self.btn_next.clicked.connect(self.nextQuery)
+            self.btn_prev.clicked.connect(self.prevQuery)
 
             self.checkLast.stateChanged.connect(self.changeCheckbox)
 
@@ -596,7 +604,7 @@ try:
             header9.setSectionResizeMode(0, QHeaderView.ResizeToContents)
 
             header10= self.tableSensor_2.horizontalHeader()
-            header10.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            header10.setSectionResizeMode(0, QHeaderView.Stretch)
             pg.setConfigOption('foreground', 'k')
 
             pen = pg.mkPen(color=(255, 0, 0))
@@ -782,12 +790,162 @@ try:
 
             
 
+        def searchData(self):
+            self.selectedSensor = self.comboBox.currentIndex()
+            if self.selectedSensor<0:
+                return QMessageBox.warning(self, 'Thông báo', 'Vui lòng chọn cảm biến!', QMessageBox.Ok)
+            startDate = self.date_start.date()
+            startTime = self.date_start.time()
+            endDate = self.date_end.date()
+            endTime = self.date_end.time()
+
+            startQuery = int(datetime(startDate.year(),startDate.month(),startDate.day(),startTime.hour(),startTime.minute(),startTime.second()).timestamp())
+            endQuery = int(datetime(endDate.year(),endDate.month(),endDate.day(),endTime.hour(),endTime.minute(),endTime.second()).timestamp())
             
+            
+            # print(startQuery,endQuery)
+            try:
+
+                if self.selectedSensor ==0:
+                    self.query= Temp.select().where(Temp.time.between(startQuery,endQuery))
+                elif self.selectedSensor==1 or self.selectedSensor==2 or self.selectedSensor==3:
+                    self.query = Digital.select().where(CO2.time.between(startQuery,endQuery))
+                elif self.selectedSensor ==4:
+                    self.query = CO2.select().where(CO2.time.between(startQuery,endQuery))
+                elif self.selectedSensor ==5:
+                    self.query = Sound.select().where(Sound.time.between(startQuery,endQuery))
+                else:
+                    self.query = Analog.select().where(Analog.time.between(startQuery,endQuery))
+
+                numData = self.query.count()
+
+                #detete all data from table
+                model =  self.tableSensor_2.model()
+                model.removeRows(0,model.rowCount())
+
+                if numData ==0:
+                    self.pageResult =0
+                    self.totalPage = 0
+                    self.lb_pagi.setText('0/0')
+                else:
+                    self.pageResult = 1
+                    self.totalPage = int(numData/self.numItem)+1
+
+                    self.lb_pagi.setText(str(self.pageResult)+"/"+str(self.totalPage))
+
+                    if self.pageResult == self.totalPage:
+                        self.btn_next.setEnabled(False)
+                    else:
+                        self.btn_next.setEnabled(True)
+                    
+                    self.queryResult = self.query.paginate(self.pageResult, self.numItem)
+                    # print(self.queryResult)
+                    for item in self.queryResult:
+                        dt=0.0
+                        if self.selectedSensor ==0:
+                            dt = item.temp
+                        elif self.selectedSensor==1:
+                            dt = item.humid
+                        elif self.selectedSensor ==2:
+                            dt = item.press
+                        elif self.selectedSensor ==3:
+                            dt = item.air_oxy
+                        elif self.selectedSensor ==4:
+                            dt = item.co2
+                        elif self.selectedSensor==5:
+                            dt = item.sound
+                        elif self.selectedSensor ==6:
+                            dt = item.pH
+                        elif self.selectedSensor ==7:
+                            dt = item.water_oxy
+                        elif self.selectedSensor ==8:
+                            dt = item.ec
+                        rowData= [convertTime(item.time),str(dt)]
+                        self.insertRow(self.tableSensor_2,rowData)
+
+            except Exception as ex:
+                print(ex)
+        
+        def nextQuery(self):
+            self.pageResult = self.pageResult +1
+            self.btn_prev.setEnabled(True)
+            if self.pageResult ==self.totalPage:
+                self.btn_next.setEnabled(False)
+            self.lb_pagi.setText(str(self.pageResult)+"/"+str(self.totalPage))
+            try:
+                self.queryResult = self.query.paginate(self.pageResult, self.numItem)
+                model =  self.tableSensor_2.model()
+                model.removeRows(0,model.rowCount())
+                for item in self.queryResult:
+                    dt=0.0
+                    if self.selectedSensor ==0:
+                        dt = item.temp
+                    elif self.selectedSensor==1:
+                        dt = item.humid
+                    elif self.selectedSensor ==2:
+                        dt = item.press
+                    elif self.selectedSensor ==3:
+                        dt = item.air_oxy
+                    elif self.selectedSensor ==4:
+                        dt = item.co2
+                    elif self.selectedSensor==5:
+                        dt = item.sound
+                    elif self.selectedSensor ==6:
+                        dt = item.pH
+                    elif self.selectedSensor ==7:
+                        dt = item.water_oxy
+                    elif self.selectedSensor ==8:
+                        dt = item.ec
+                    rowData= [convertTime(item.time),str(dt)]
+                    self.insertRow(self.tableSensor_2,rowData)
+            except Exception as ex:
+                print(ex)
+    
+        def prevQuery(self):
+            self.pageResult = self.pageResult -1
+            if self.pageResult==0:
+                self.pageResult = 1
+            self.btn_next.setEnabled(True)
+            if self.pageResult ==1:
+                self.btn_prev.setEnabled(False)
+            self.lb_pagi.setText(str(self.pageResult)+"/"+str(self.totalPage))
+            try:
+                self.queryResult = self.query.paginate(self.pageResult, self.numItem)
+                model =  self.tableSensor_2.model()
+                model.removeRows(0,model.rowCount())
+                for item in self.queryResult:
+                    dt=0.0
+                    if self.selectedSensor ==0:
+                        dt = item.temp
+                    elif self.selectedSensor==1:
+                        dt = item.humid
+                    elif self.selectedSensor ==2:
+                        dt = item.press
+                    elif self.selectedSensor ==3:
+                        dt = item.air_oxy
+                    elif self.selectedSensor ==4:
+                        dt = item.co2
+                    elif self.selectedSensor==5:
+                        dt = item.sound
+                    elif self.selectedSensor ==6:
+                        dt = item.pH
+                    elif self.selectedSensor ==7:
+                        dt = item.water_oxy
+                    elif self.selectedSensor ==8:
+                        dt = item.ec
+                    rowData= [convertTime(item.time),str(dt)]
+                    self.insertRow(self.tableSensor_2,rowData)
+            except Exception as ex:
+                print(ex)  
+
+
         def changeCheckbox(self,dt):
             # print('checkboox:',dt)
             state = self.checkLast.isChecked()
-            if state == False or self.event_stop==None:
+            if state == False:
                 return
+            if self.event_stop == None:
+                return QMessageBox.warning(self, 'Thông báo', 'Chưa có thời gian kết thúc!', QMessageBox.Ok)
             start = datetime.fromtimestamp(self.event_start)
             end = datetime.fromtimestamp(self.event_stop)
 
@@ -796,6 +954,11 @@ try:
 
             tStart = QTime(start.hour,start.minute,start.second)
             tEnd = QTime(end.hour,end.minute,end.second)
+
+            self.date_start.setDate(dStart)
+            self.date_start.setTime(tStart)
+            self.date_end.setDate(dEnd)
+            self.date_end.setTime(tEnd)
 
             
         def showTime(self):
@@ -1321,6 +1484,15 @@ try:
         def insertFirstRow(self,table,row_data):
             col=0
             row = 0
+            table.insertRow(row)
+            for item in row_data:
+                cell = QTableWidgetItem(str(item))
+                cell.setTextAlignment(Qt.AlignHCenter|Qt.AlignVCenter)
+                table.setItem(row,col,cell)
+                col+=1
+        def insertRow(self,table,row_data):
+            col=0
+            row = table.rowCount()
             table.insertRow(row)
             for item in row_data:
                 cell = QTableWidgetItem(str(item))
