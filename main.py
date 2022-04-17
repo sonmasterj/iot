@@ -521,9 +521,9 @@ try:
 
             #init qdate
             now = datetime.now()
-            qdate = QDate(now.year,now.month,now.day-1)
+            qdate = QDate(now.year,now.month,now.day)
             qtime = QTime(now.hour,now.minute,now.second)
-            qtime_1 = QTime(now.hour+3,now.minute,now.second)
+            # qtime_1 = QTime(now.hour+3,now.minute,now.second)
             self.date_start.setMaximumDate(qdate)
             # self.date_start.setMaximumTime(qtime)
 
@@ -532,7 +532,7 @@ try:
             self.date_start.setDate(qdate)
             self.date_start.setTime(qtime)
             self.date_end.setDate(qdate)
-            self.date_end.setTime(qtime_1)
+            self.date_end.setTime(qtime)
 
             #set up timer for showwing datetime
             self.timer=QTimer()
@@ -822,6 +822,8 @@ try:
         #     print('close dialog')
         #     self.dialog_show = False
         def searchData(self):
+            if self.dialog_show == True:
+                return
             self.selectedSensor = self.comboBox.currentIndex()
             if self.selectedSensor<0:
                 return QMessageBox.warning(self, 'Thông báo', 'Vui lòng chọn cảm biến!', QMessageBox.Ok)
@@ -1437,8 +1439,12 @@ try:
                     print("error write data to db:",ex)
         # go to Pages
         def goHome(self):
+            if self.dialog_show == True:
+                return
             self.stackedWidget.setCurrentIndex(0)  
         def goHistory(self):
+            if self.dialog_show == True:
+                return
             self.stackedWidget.setCurrentIndex(10)
 
         def closeEvent(self, QCloseEvent):
@@ -1467,6 +1473,8 @@ try:
             # self.runMeasure.stop()
 
             # db_close()
+            if self.dialog_show == True:
+                return
             newMessBox = QMessageBox(self)
             newMessBox.setIcon(QMessageBox.Warning)
             newMessBox.setText("Bạn có chắc chắn muốn thoát phần mềm?")
