@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QEvent,QObjec
 from PyQt5.QtGui import QColor,QPixmap,QIcon,QGuiApplication,QRegion
 import pyqtgraph as pg
 from analoggaugewidget import AnalogGaugeWidget
+from mail import Mail
 import sys
 from datetime import datetime
 import socket
@@ -464,6 +465,7 @@ try:
             self.event_start = None
             self.event_stop = None
             self.selectedSensor = -1
+            self.dialog_show = False
             # self.installEventFilter(self)
 
             #array store sensor data
@@ -509,7 +511,7 @@ try:
             self.btn_elec.clicked.connect(self.goElec)
 
             self.btn_search.clicked.connect(self.searchData)
-            # self.btn_export.clicked.connect(self.exportData)
+            self.btn_export.clicked.connect(self.sendMail)
             self.btn_next.clicked.connect(self.nextQuery)
             self.btn_prev.clicked.connect(self.prevQuery)
 
@@ -519,8 +521,9 @@ try:
 
             #init qdate
             now = datetime.now()
-            qdate = QDate(now.year,now.month,now.day)
+            qdate = QDate(now.year,now.month,now.day-1)
             qtime = QTime(now.hour,now.minute,now.second)
+            qtime_1 = QTime(now.hour+3,now.minute,now.second)
             self.date_start.setMaximumDate(qdate)
             # self.date_start.setMaximumTime(qtime)
 
@@ -529,7 +532,7 @@ try:
             self.date_start.setDate(qdate)
             self.date_start.setTime(qtime)
             self.date_end.setDate(qdate)
-            self.date_end.setTime(qtime)
+            self.date_end.setTime(qtime_1)
 
             #set up timer for showwing datetime
             self.timer=QTimer()
@@ -798,6 +801,26 @@ try:
 
 
         #     return False
+        def sendMail(self):
+            # print(self.dialog_show)
+            if self.dialog_show == True:
+                return
+            if self.start == True:
+                return QMessageBox.warning(self, 'Thông báo', 'Vui lòng hoàn thành quá trình đo trước khi gửi mail!', QMessageBox.Ok)
+            if self.query != None and len(self.query)>0:
+                self.dialog_show = True
+                m = Mail(self,self.query,self.selectedSensor)
+                m.show()
+                m.raise_()
+                m.activateWindow()
+                
+                # m.closeEvent = self.dialogClose()
+                # self.hide()
+            else:
+                return QMessageBox.warning(self, 'Thông báo', 'Không có dữ liệu để xuất file!', QMessageBox.Ok)   
+        # def dialogClose(self):
+        #     print('close dialog')
+        #     self.dialog_show = False
         def searchData(self):
             self.selectedSensor = self.comboBox.currentIndex()
             if self.selectedSensor<0:
@@ -1295,6 +1318,8 @@ try:
 
         #event clicked buttons
         def startMeasure(self):
+            if self.dialog_show == True:
+                return
             if self.start == False:
                 self.start = True
                 self.btn_run.setIcon(QIcon(':/img/pause.svg'))
@@ -1527,7 +1552,7 @@ try:
                 keyboard = w.findChild(QObject, "keyboard")
                 if keyboard is not None:
                     r = w.geometry()
-                    r.moveTop(keyboard.property("y"))
+                    r.moveTop(int(keyboard.property("y")))
                     w.setMask(QRegion(r))
                     return
     if __name__ == "__main__":
