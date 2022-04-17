@@ -1,13 +1,13 @@
 import os
 import glob
-
+import sys
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
 from PyQt5.QtWidgets import  QFileDialog, QMainWindow,QApplication,QTableWidgetItem,  QDialog,QMessageBox,QGraphicsDropShadowEffect,QFileDialog,QHeaderView
 from PyQt5 import uic
-from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime
-from PyQt5.QtGui import QColor,QPixmap,QIcon
+from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QEvent,QObject
+from PyQt5.QtGui import QColor,QPixmap,QIcon,QGuiApplication,QRegion
 import pyqtgraph as pg
 from analoggaugewidget import AnalogGaugeWidget
 import sys
@@ -27,7 +27,7 @@ from sensors.ec import convertEC
 from sensors.ADS1x15 import ADS1115
 import smbus
 from collections import deque
-from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound
+from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback
 view_path = 'iot.ui'
 application_path =os.path.dirname(os.path.abspath(__file__)) 
 curren_path = os.path.join(application_path,os.pardir)
@@ -464,6 +464,7 @@ try:
             self.event_start = None
             self.event_stop = None
             self.selectedSensor = -1
+            # self.installEventFilter(self)
 
             #array store sensor data
             self.maxLen=40
@@ -789,11 +790,19 @@ try:
 
 
             
+        # def eventFilter(self, object, event):
+        #     if event.type()== QEvent.FocusIn:
+        #         print("widget has gained keyboard focus")
+        #     elif event.type()== QEvent.FocusOut:
+        #         print("widget has lost keyboard focus")
 
+
+        #     return False
         def searchData(self):
             self.selectedSensor = self.comboBox.currentIndex()
             if self.selectedSensor<0:
                 return QMessageBox.warning(self, 'Thông báo', 'Vui lòng chọn cảm biến!', QMessageBox.Ok)
+            
             startDate = self.date_start.date()
             startTime = self.date_start.time()
             endDate = self.date_end.date()
@@ -802,14 +811,18 @@ try:
             startQuery = int(datetime(startDate.year(),startDate.month(),startDate.day(),startTime.hour(),startTime.minute(),startTime.second()).timestamp())
             endQuery = int(datetime(endDate.year(),endDate.month(),endDate.day(),endTime.hour(),endTime.minute(),endTime.second()).timestamp())
             
+            check = endQuery - startQuery
+            if check >=24*60*60:
+                return QMessageBox.warning(self, 'Thông báo', 'Dữ liệu tìm kiếm quá thời gian một ngày.\nVui lòng chọn lại thời gian!', QMessageBox.Ok)
             
             # print(startQuery,endQuery)
+            self.btn_search.setEnabled(False)
             try:
 
                 if self.selectedSensor ==0:
                     self.query= Temp.select().where(Temp.time.between(startQuery,endQuery))
                 elif self.selectedSensor==1 or self.selectedSensor==2 or self.selectedSensor==3:
-                    self.query = Digital.select().where(CO2.time.between(startQuery,endQuery))
+                    self.query = Digital.select().where(Digital.time.between(startQuery,endQuery))
                 elif self.selectedSensor ==4:
                     self.query = CO2.select().where(CO2.time.between(startQuery,endQuery))
                 elif self.selectedSensor ==5:
@@ -827,6 +840,7 @@ try:
                     self.pageResult =0
                     self.totalPage = 0
                     self.lb_pagi.setText('0/0')
+                    return QMessageBox.information(self, 'Thông báo', 'Không có dữ liệu cảm biến!', QMessageBox.Ok)
                 else:
                     self.pageResult = 1
                     self.totalPage = int(numData/self.numItem)+1
@@ -862,9 +876,11 @@ try:
                             dt = item.ec
                         rowData= [convertTime(item.time),str(dt)]
                         self.insertRow(self.tableSensor_2,rowData)
-
+                self.btn_search.setEnabled(True)
             except Exception as ex:
                 print(ex)
+                self.btn_search.setEnabled(True)
+                db_rollback()
         
         def nextQuery(self):
             self.pageResult = self.pageResult +1
@@ -899,6 +915,7 @@ try:
                     rowData= [convertTime(item.time),str(dt)]
                     self.insertRow(self.tableSensor_2,rowData)
             except Exception as ex:
+                db_rollback()
                 print(ex)
     
         def prevQuery(self):
@@ -936,6 +953,7 @@ try:
                     rowData= [convertTime(item.time),str(dt)]
                     self.insertRow(self.tableSensor_2,rowData)
             except Exception as ex:
+                db_rollback()
                 print(ex)  
 
 
@@ -1409,7 +1427,7 @@ try:
             self.digitalSensor.stop()
             self.timer.stop()
             self.runMeasure.stop()
-            db_close()
+           
             # self.goClose()
         
         def goClose(self):
@@ -1433,6 +1451,7 @@ try:
 
             if returnValue == QMessageBox.No:
                 return
+            db_close()
             self.close()
         
         def goTemp(self):
@@ -1499,10 +1518,23 @@ try:
                 cell.setTextAlignment(Qt.AlignHCenter|Qt.AlignVCenter)
                 table.setItem(row,col,cell)
                 col+=1
-
+    
+    def handleVisibleChanged():
+        if not QGuiApplication.inputMethod().isVisible():
+            return
+        for w in QGuiApplication.allWindows():
+            if w.metaObject().className() == "QtVirtualKeyboard::InputView":
+                keyboard = w.findChild(QObject, "keyboard")
+                if keyboard is not None:
+                    r = w.geometry()
+                    r.moveTop(keyboard.property("y"))
+                    w.setMask(QRegion(r))
+                    return
     if __name__ == "__main__":
         creat_table()
+        os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         app = QApplication(sys.argv)
+        QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
         # window = Home("s")
         # window.show()
         win = Main()

@@ -27,5 +27,7 @@ class Sound(BaseModel):
 def creat_table():
     if db.table_exists(table_name='co2')!=True:
         db.create_tables([CO2,Sound,Analog,Digital,Temp])
+def db_rollback():
+    db.rollback()
 def db_close():
     db.close()
