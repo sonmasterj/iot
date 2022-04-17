@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>978</width>
+    <width>1072</width>
     <height>608</height>
    </rect>
   </property>
@@ -2540,8 +2540,11 @@ border:none;
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <property name="spacing">
+                 <property name="horizontalSpacing">
                   <number>5</number>
+                 </property>
+                 <property name="verticalSpacing">
+                  <number>10</number>
                  </property>
                  <item row="0" column="0">
                   <widget class="QLabel" name="label_10">
@@ -2768,6 +2771,9 @@ border:none;
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <property name="spacing">
+                  <number>10</number>
+                 </property>
                  <property name="leftMargin">
                   <number>0</number>
                  </property>
@@ -2858,7 +2864,7 @@ background-color:#ffe5c4;
 }</string>
                    </property>
                    <property name="text">
-                    <string>Xuất file</string>
+                    <string>Gửi mail</string>
                    </property>
                   </widget>
                  </item>
