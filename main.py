@@ -4,17 +4,16 @@ import sys
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
-from PyQt5.QtWidgets import  QFileDialog, QMainWindow,QApplication,QTableWidgetItem,  QDialog,QMessageBox,QGraphicsDropShadowEffect,QFileDialog,QHeaderView
+from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView
 from PyQt5 import uic
-from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QEvent,QObject
-from PyQt5.QtGui import QColor,QPixmap,QIcon,QGuiApplication,QRegion
+from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QObject
+from PyQt5.QtGui import QIcon,QGuiApplication,QRegion
 import pyqtgraph as pg
 from analoggaugewidget import AnalogGaugeWidget
 from mail import Mail
 import sys
 from datetime import datetime
 import socket
-import xlsxwriter as xlsx
 import RPi.GPIO as GPIO
 from ultil.asyncSleep import delay
 from sensors.ds18b20 import DS18B20
@@ -469,7 +468,7 @@ try:
             # self.installEventFilter(self)
 
             #array store sensor data
-            self.maxLen=40
+            self.maxLen=60
             self.maxRow=20
             self.time_stamp_temp=deque([])
             self.time_stamp_digital=deque([])
