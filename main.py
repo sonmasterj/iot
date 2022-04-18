@@ -39,7 +39,7 @@ try:
     SLOW_INTERVAL = 4000
     FAST_INTERVAL = 300
     MAX_STEPS = 10
-    TIME_MEASURE = 1 # 5 phut
+    TIME_MEASURE = 5 # 5 phut
 
     add1_1=13
     add1_2=16
@@ -452,6 +452,8 @@ try:
             super().__init__(*args, **kwargs)
             uic.loadUi(view_path,self)
             self.stackedWidget.setCurrentIndex(0)
+            self.setWindowFlags(Qt.FramelessWindowHint)
+            self.showMaximized()
             self.query = None
             self.queryResult = None
             self.pageResult = 0
