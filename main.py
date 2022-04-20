@@ -29,8 +29,9 @@ import smbus
 from collections import deque
 from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback
 view_path = 'iot.ui'
-application_path =os.path.dirname(os.path.abspath(__file__)) 
-curren_path = os.path.join(application_path,os.pardir)
+# application_path =os.path.dirname(os.path.abspath(__file__)) 
+# curren_path = os.path.join(application_path,os.pardir)
+# print(curren_path)
 
 try:
     CHECK_INTERVAL = 1500
@@ -1566,9 +1567,9 @@ try:
                     return
     if __name__ == "__main__":
         creat_table()
-        os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
+        # os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         app = QApplication(sys.argv)
-        QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
+        # QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
         # window = Home("s")
         # window.show()
         win = Main()

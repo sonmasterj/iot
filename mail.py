@@ -9,8 +9,8 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
-USER_MAIL="drkcloud.info20@gmail.com"
-PASS_MAIL="drkcloud$02"
+USER_MAIL="iot.demo.sp2022@gmail.com"
+PASS_MAIL="iotdemo1234@"
 def convertTime(time):
     t = datetime.fromtimestamp(time)
     return t.strftime('%d/%m/%Y %H:%M:%S:%f')[:-5]

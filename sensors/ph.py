@@ -5,4 +5,6 @@ def convertPH(raw_data):
     mV = aver_val*4.096/32767
     # print(mV)
     pH= (m*mV) + b
+    if pH>14:
+        pH=0
     return round(pH,1)

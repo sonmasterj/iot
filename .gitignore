@@ -1,3 +1,6 @@
 __pycache__/
 sensors/__pycache__
 ultil/__pycache__
+dist/
+build/
+main.spec
