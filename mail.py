@@ -1,11 +1,12 @@
-import sys
-import os
-from PyQt5.QtWidgets import QApplication, QDialog,QMessageBox
-from PyQt5 import uic
-from PyQt5.QtCore import Qt
+# import sys
+# import os
+from PyQt5.QtWidgets import  QDialog,QMessageBox,QLineEdit,QLabel,QPushButton
+# from PyQt5 import uic
+from PyQt5.QtCore import Qt,QRect,QSize,QMetaObject,QCoreApplication
+from PyQt5.QtGui import QFont
 import smtplib
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+# from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
@@ -24,7 +25,57 @@ class Mail(QDialog):
         self.name = name
         self.setAttribute(Qt.WA_DeleteOnClose)
         #load ui file
-        uic.loadUi('mail.ui', self)
+        # uic.loadUi('mail.ui', self)
+        if not self.objectName():
+            self.setObjectName(u"Email")
+        self.txt_email = QLineEdit(self)
+        self.txt_email.setObjectName(u"txt_email")
+        self.txt_email.setGeometry(QRect(120, 20, 421, 41))
+        self.txt_email.setMinimumSize(QSize(0, 40))
+        font = QFont()
+        font.setFamily(u"Times New Roman")
+        self.txt_email.setFont(font)
+        self.label = QLabel(self)
+        self.label.setObjectName(u"label")
+        self.label.setGeometry(QRect(20, 32, 91, 16))
+        font1 = QFont()
+        font1.setFamily(u"Times New Roman")
+        font1.setPointSize(13)
+        font1.setBold(False)
+        font1.setWeight(50)
+        self.label.setFont(font1)
+        self.txt_subject = QLineEdit(self)
+        self.txt_subject.setObjectName(u"txt_subject")
+        self.txt_subject.setGeometry(QRect(120, 80, 421, 41))
+        self.txt_subject.setMinimumSize(QSize(0, 40))
+        self.txt_subject.setFont(font)
+        self.label_2 = QLabel(self)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setGeometry(QRect(20, 92, 91, 16))
+        self.label_2.setFont(font1)
+        self.btn_send = QPushButton(self)
+        self.btn_send.setObjectName(u"btn_send")
+        self.btn_send.setGeometry(QRect(440, 140, 101, 40))
+        self.btn_send.setMinimumSize(QSize(0, 40))
+        font2 = QFont()
+        font2.setFamily(u"Times New Roman")
+        font2.setBold(True)
+        font2.setWeight(75)
+        self.btn_send.setFont(font2)
+        self.btn_exit = QPushButton(self)
+        self.btn_exit.setObjectName(u"btn_exit")
+        self.btn_exit.setGeometry(QRect(320, 140, 101, 40))
+        self.btn_exit.setMinimumSize(QSize(0, 40))
+        self.btn_exit.setFont(font2)
+
+        # self.retranslateUi(self)
+        self.setWindowTitle(QCoreApplication.translate("Email", u"Email", None))
+        self.label.setText(QCoreApplication.translate("Email", u"Email nh\u1eadn", None))
+        self.label_2.setText(QCoreApplication.translate("Email", u"Ch\u1ee7 \u0111\u1ec1", None))
+        self.btn_send.setText(QCoreApplication.translate("Email", u"G\u1eedi", None))
+        self.btn_exit.setText(QCoreApplication.translate("Email", u"Hu\u1ef7", None))
+
+        QMetaObject.connectSlotsByName(self)
 
         # #set fix size window
         self.setFixedSize(559,196)
