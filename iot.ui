@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1042</width>
-    <height>608</height>
+    <height>818</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -343,7 +343,7 @@ background-color: rgb(84,153,199);
 }</string>
          </property>
          <property name="currentIndex">
-          <number>10</number>
+          <number>11</number>
          </property>
          <widget class="QWidget" name="homePage">
           <property name="styleSheet">
@@ -388,8 +388,78 @@ background-color: rgb(84,153,199);
               <property name="verticalSpacing">
                <number>6</number>
               </property>
-              <item row="1" column="2">
-               <widget class="QLabel" name="lb_temp_status">
+              <item row="5" column="1">
+               <widget class="QLabel" name="lb_co2">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0.0</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="1">
+               <widget class="QLabel" name="lb_elec">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0.0</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QLabel" name="lb_o2n_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -460,78 +530,8 @@ background-color: rgb(84,153,199);
                 </property>
                </widget>
               </item>
-              <item row="6" column="0">
-               <widget class="QPushButton" name="btn_sound">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
-                </property>
-                <property name="text">
-                 <string>Cường độ âm thanh (dBA)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLabel" name="label_38">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>25</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>25</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">color: rgb(0, 0, 255);</string>
-                </property>
-                <property name="text">
-                 <string>Trạng thái kết nối</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QLabel" name="lb_press_status">
+              <item row="6" column="2">
+               <widget class="QLabel" name="lb_sound_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -566,8 +566,81 @@ QPushButton:hover{
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
-               <widget class="QLabel" name="lb_co2">
+              <item row="1" column="2">
+               <widget class="QLabel" name="lb_temp_status">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+	color: rgb(250, 0, 0);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Ngắt kết nối</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="0">
+               <widget class="QPushButton" name="btn_elec">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Độ dẫn điện (ms/cm)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="lb_temp">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -598,257 +671,6 @@ QPushButton:hover{
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="label_37">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>25</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>25</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">color: rgb(0, 0, 255);</string>
-                </property>
-                <property name="text">
-                 <string>Giá trị tức thời</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLabel" name="lb_press">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0.0</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QLabel" name="lb_o2kk">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0.0</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QPushButton" name="btn_o2kk">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
-                </property>
-                <property name="text">
-                 <string>N.độ O2 trong KK (%Vol)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QPushButton" name="btn_co2">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
-                </property>
-                <property name="text">
-                 <string>Nồng độ CO2 (ppm)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QPushButton" name="btn_temp">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
-                </property>
-                <property name="text">
-                 <string>Cảm biến nhiệt độ (℃)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QPushButton" name="btn_humid">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
-                </property>
-                <property name="text">
-                 <string>Cảm biến độ ẩm (%)</string>
                 </property>
                </widget>
               </item>
@@ -923,187 +745,8 @@ QPushButton:hover{
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
-               <widget class="QLabel" name="lb_co2_status">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-	color: rgb(250, 0, 0);
-}</string>
-                </property>
-                <property name="text">
-                 <string>Ngắt kết nối</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="2">
-               <widget class="QLabel" name="lb_o2n_status">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-	color: rgb(250, 0, 0);
-}</string>
-                </property>
-                <property name="text">
-                 <string>Ngắt kết nối</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QLabel" name="lb_humid_status">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-	color: rgb(250, 0, 0);
-}</string>
-                </property>
-                <property name="text">
-                 <string>Ngắt kết nối</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="lb_temp">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0.0</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="2">
-               <widget class="QLabel" name="lb_sound_status">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel{
-	background-color: white;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-	color: rgb(250, 0, 0);
-}</string>
-                </property>
-                <property name="text">
-                 <string>Ngắt kết nối</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QPushButton" name="btn_press">
+              <item row="8" column="0">
+               <widget class="QPushButton" name="btn_o2n">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1135,7 +778,188 @@ QPushButton:hover{
 }</string>
                 </property>
                 <property name="text">
-                 <string>Cảm biến áp suất (kPa)</string>
+                 <string>N.độ O2 trong nước (mg/L)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QPushButton" name="btn_o2kk">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>N.độ O2 trong KK (%Vol)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label_37">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(0, 0, 255);</string>
+                </property>
+                <property name="text">
+                 <string>Giá trị tức thời</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QPushButton" name="btn_sound">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Cường độ âm thanh (dBA)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QPushButton" name="btn_ph">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Cảm biến độ PH (pH)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QPushButton" name="btn_co2">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Nồng độ CO2 (ppm)</string>
                 </property>
                </widget>
               </item>
@@ -1174,33 +998,36 @@ QPushButton:hover{
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_29">
+              <item row="3" column="2">
+               <widget class="QLabel" name="lb_press_status">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>25</height>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>25</height>
+                  <height>50</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
                   <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(0, 0, 255);</string>
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+	color: rgb(250, 0, 0);
+}</string>
                 </property>
                 <property name="text">
-                 <string>Danh sách cảm biến</string>
+                 <string>Ngắt kết nối</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -1240,6 +1067,115 @@ QPushButton:hover{
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLabel" name="lb_o2kk">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0.0</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QPushButton" name="btn_humid">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Cảm biến độ ẩm (%)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="btn_temp">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton{
+	background-color: #ffbc65;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}
+QPushButton:hover{
+	background-color:#ffe5c4;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Cảm biến nhiệt độ (℃)</string>
                 </property>
                </widget>
               </item>
@@ -1313,8 +1249,8 @@ QPushButton:hover{
                 </property>
                </widget>
               </item>
-              <item row="9" column="1">
-               <widget class="QLabel" name="lb_elec">
+              <item row="3" column="1">
+               <widget class="QLabel" name="lb_press">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1348,8 +1284,8 @@ QPushButton:hover{
                 </property>
                </widget>
               </item>
-              <item row="7" column="0">
-               <widget class="QPushButton" name="btn_ph">
+              <item row="3" column="0">
+               <widget class="QPushButton" name="btn_press">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1381,22 +1317,22 @@ QPushButton:hover{
 }</string>
                 </property>
                 <property name="text">
-                 <string>Cảm biến độ PH (pH)</string>
+                 <string>Cảm biến áp suất (hPa)</string>
                 </property>
                </widget>
               </item>
-              <item row="8" column="0">
-               <widget class="QPushButton" name="btn_o2n">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_29">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>40</height>
+                  <height>25</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>50</height>
+                  <height>25</height>
                  </size>
                 </property>
                 <property name="font">
@@ -1408,22 +1344,123 @@ QPushButton:hover{
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">QPushButton{
-	background-color: #ffbc65;
-    border: 2px solid #a7da46;
-    border-radius:10px;
-}
-QPushButton:hover{
-	background-color:#ffe5c4;
-}</string>
+                 <string notr="true">color: rgb(0, 0, 255);</string>
                 </property>
                 <property name="text">
-                 <string>N.độ O2 trong nước (mg/L)</string>
+                 <string>Danh sách cảm biến</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="9" column="0">
-               <widget class="QPushButton" name="btn_elec">
+              <item row="5" column="2">
+               <widget class="QLabel" name="lb_co2_status">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+	color: rgb(250, 0, 0);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Ngắt kết nối</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_38">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(0, 0, 255);</string>
+                </property>
+                <property name="text">
+                 <string>Trạng thái kết nối</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLabel" name="lb_humid_status">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+	color: rgb(250, 0, 0);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Ngắt kết nối</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="0">
+               <widget class="QPushButton" name="btn_force">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1455,7 +1492,78 @@ QPushButton:hover{
 }</string>
                 </property>
                 <property name="text">
-                 <string>Độ dẫn điện (ms/cm)</string>
+                 <string>Cảm biến lực (N)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="1">
+               <widget class="QLabel" name="lb_force">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0.0</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="2">
+               <widget class="QLabel" name="lb_force_status">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel{
+	background-color: white;
+    border: 2px solid #a7da46;
+    border-radius:10px;
+	color: rgb(250, 0, 0);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Ngắt kết nối</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -1748,7 +1856,7 @@ background-color:transparent;
                </column>
                <column>
                 <property name="text">
-                 <string>Áp suất (kPa)</string>
+                 <string>Áp suất (hPa)</string>
                 </property>
                 <property name="font">
                  <font>
@@ -2471,6 +2579,119 @@ background-color:transparent;
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="forcePage">
+          <property name="styleSheet">
+           <string notr="true">QWidget#forcePage{
+background-color:transparent;
+}</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>10</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="graphBox_10" stretch="2,3">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <item>
+              <widget class="QTableWidget" name="tableForce">
+               <property name="font">
+                <font>
+                 <family>Times New Roman</family>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QHeaderView::section {
+   border:1px solid gray
+}</string>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>true</bool>
+               </attribute>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="verticalHeaderStretchLastSection">
+                <bool>false</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string>Thời gian</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Lực (N)</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Times New Roman</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameForce">
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_15">
+                <property name="spacing">
+                 <number>10</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="historyPage">
           <property name="styleSheet">
            <string notr="true">QWidget#historyPage{
@@ -2606,7 +2827,7 @@ border:none;
                     </size>
                    </property>
                    <property name="currentIndex">
-                    <number>-1</number>
+                    <number>0</number>
                    </property>
                    <item>
                     <property name="text">
