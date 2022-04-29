@@ -511,6 +511,7 @@ try:
             self.btn_ph.clicked.connect(self.goPh)
             self.btn_o2n.clicked.connect(self.goO2n)
             self.btn_elec.clicked.connect(self.goElec)
+            self.btn_force.clicked.connect(self.goForce)
 
             self.btn_search.clicked.connect(self.searchData)
             self.btn_export.clicked.connect(self.sendMail)
@@ -609,8 +610,13 @@ try:
             header9= self.tableElec.horizontalHeader()
             header9.setSectionResizeMode(0, QHeaderView.ResizeToContents)
 
-            header10= self.tableSensor_2.horizontalHeader()
-            header10.setSectionResizeMode(0, QHeaderView.Stretch)
+            header10= self.tableForce.horizontalHeader()
+            header10.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+
+            header11= self.tableSensor_2.horizontalHeader()
+            header11.setSectionResizeMode(0, QHeaderView.Stretch)
+
+
             pg.setConfigOption('foreground', 'k')
 
             pen = pg.mkPen(color=(255, 0, 0))
@@ -788,6 +794,26 @@ try:
             self.verticalLayout_14.addWidget(self.gaugeElec,1)
             self.verticalLayout_14.setStretch(0, 1)
             self.verticalLayout_14.setStretch(1, 1)
+
+
+            #page Force
+            self.graphForce = pg.PlotWidget(title='Đồ thị lực',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Lực (N)')
+            # self.line_ec = self.graphElec.plot(self.time_stamp_temp,self.list_ec,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
+            self.graphForce.setMenuEnabled(False)
+            self.graphForce.setBackground('w')
+            self.verticalLayout_15.addWidget(self.graphForce,0)
+
+            self.gaugeForce = AnalogGaugeWidget()
+            self.gaugeForce.value_min =0
+            self.gaugeForce.enable_barGraph = True
+            self.gaugeForce.value_needle_snapzone = 1
+            self.gaugeForce.value_max =1000
+            self.gaugeForce.scala_main_count=10
+            self.gaugeForce.set_enable_CenterPoint(False)
+            self.gaugeForce.update_value(0)
+            self.verticalLayout_15.addWidget(self.gaugeForce,1)
+            self.verticalLayout_15.setStretch(0, 1)
+            self.verticalLayout_15.setStretch(1, 1)
 
             self.show()
 
@@ -1447,7 +1473,7 @@ try:
         def goHistory(self):
             if self.dialog_show == True:
                 return
-            self.stackedWidget.setCurrentIndex(10)
+            self.stackedWidget.setCurrentIndex(11)
 
         def closeEvent(self, QCloseEvent):
             print('close app!')
@@ -1458,8 +1484,8 @@ try:
             self.tempSensor.stop()
             self.adcSensor.stop()
             self.digitalSensor.stop()
-            self.timer.stop()
-            self.runMeasure.stop()
+            # self.timer.stop()
+            # self.runMeasure.stop()
            
             # self.goClose()
         
@@ -1534,6 +1560,12 @@ try:
             if len(self.list_ec)>0:
                 self.gaugeElec.update_value(self.list_ec[-1])
                 self.line_ec.setData(self.time_stamp_analog,self.list_ec)
+        
+        def goForce(self):
+            self.stackedWidget.setCurrentIndex(10)
+            # if len(self.list_ec)>0:
+            #     self.gaugeElec.update_value(self.list_ec[-1])
+            #     self.line_ec.setData(self.time_stamp_analog,self.list_ec)
         
         def insertFirstRow(self,table,row_data):
             col=0
