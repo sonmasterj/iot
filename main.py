@@ -1279,7 +1279,7 @@ try:
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 5:
                     self.gaugeCO2.update_value(dt['co2'])
-                    self.line_co2.setData(self.time_stamp_co2,self.line_co2)
+                    self.line_co2.setData(self.time_stamp_co2,self.list_co2)
                 
                 #update table
                 count = self.tableCO2.rowCount()
