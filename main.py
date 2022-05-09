@@ -2,7 +2,7 @@ import os
 import glob
 import sys
 import subprocess
-import signal
+# import signal
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
@@ -34,8 +34,8 @@ view_path = 'iot.ui'
 # application_path =os.path.dirname(os.path.abspath(__file__)) 
 # curren_path = os.path.join(application_path,os.pardir)
 # print(curren_path)
-win = None
-mypid= os.getpid()
+# win = None
+# mypid= os.getpid()
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -181,8 +181,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
     class soundThread(QThread):
         updateDt = pyqtSignal(object)
@@ -224,8 +225,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            self.quit()
+            # self.wait()
 
     class tempThread(QThread):
         updateDt = pyqtSignal(object)
@@ -264,8 +266,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
 
     #reading sensor thread
     class digitalThread(QThread):
@@ -301,8 +304,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
     #analog sensor
     class analogThread(QThread):
@@ -385,8 +389,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     #reading co2 thread
     class co2Thread(QThread):
         updateDt = pyqtSignal(object)
@@ -414,8 +419,9 @@ try:
         def stop(self):
             self.threadActive = False
             self.co2.close_serial()
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
 
 
@@ -437,8 +443,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
 
 
     class TimeAxisItem(pg.AxisItem):
@@ -1515,16 +1522,17 @@ try:
 
             if returnValue == QMessageBox.No:
                 return
-            # db_close()
-            self.readInternet.threadActive = False
-            self.sensorStatus.threadActive = False
-            self.soundSensor.threadActive = False
-            self.co2Sensor.threadActive = False
-            self.tempSensor.threadActive = False
-            self.adcSensor.threadActive = False
-            self.digitalSensor.threadActive = False
-            for i in range(1000):
-                pass
+            db_close()
+            # self.readInternet.threadActive = False
+            # self.sensorStatus.threadActive = False
+            # self.soundSensor.threadActive = False
+            # self.co2Sensor.threadActive = False
+            # self.tempSensor.threadActive = False
+            # self.adcSensor.threadActive = False
+            # self.digitalSensor.threadActive = False
+            # a=0
+            # for i in range(5000):
+            #     a=a+1
             self.close()
         def goOff(self):
             if self.dialog_show == True:
@@ -1538,13 +1546,13 @@ try:
             if returnValue == QMessageBox.No:
                 return
             # db_close()
-            self.readInternet.threadActive = False
-            self.sensorStatus.threadActive = False
-            self.soundSensor.threadActive = False
-            self.co2Sensor.threadActive = False
-            self.tempSensor.threadActive = False
-            self.adcSensor.threadActive = False
-            self.digitalSensor.threadActive = False
+            # self.readInternet.threadActive = False
+            # self.sensorStatus.threadActive = False
+            # self.soundSensor.threadActive = False
+            # self.co2Sensor.threadActive = False
+            # self.tempSensor.threadActive = False
+            # self.adcSensor.threadActive = False
+            # self.digitalSensor.threadActive = False
             # delay(50)
             subprocess.Popen('sudo shutdown -h now',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         
@@ -1643,8 +1651,8 @@ try:
 except Exception as ex:
     print(ex)
     # GPIO.cleanup()
-    del win.window 
+    # del win.window 
 finally:
     print("exit app!")
     GPIO.cleanup()
-    os.kill(mypid, signal.SIGTERM)
+    # os.kill(mypid, signal.SIGTERM)
