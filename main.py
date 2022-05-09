@@ -2,6 +2,7 @@ import os
 import glob
 import sys
 import subprocess
+import signal
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
@@ -34,6 +35,7 @@ view_path = 'iot.ui'
 # curren_path = os.path.join(application_path,os.pardir)
 # print(curren_path)
 win = None
+mypid= os.getpid()
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -670,7 +672,7 @@ try:
             self.gaugePress.value_min =0
             self.gaugePress.enable_barGraph = True
             self.gaugePress.value_needle_snapzone = 1
-            self.gaugePress.value_max =150
+            self.gaugePress.value_max =1500
             self.gaugePress.scala_main_count=15
             self.gaugePress.set_enable_CenterPoint(False)
             self.gaugePress.update_value(0)
@@ -1630,9 +1632,9 @@ try:
                     return
     if __name__ == "__main__":
         creat_table()
-        # os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
+        os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         app = QApplication(sys.argv)
-        # QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
+        QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
         # window = Home("s")
         # window.show()
         win = Main()
@@ -1645,3 +1647,4 @@ except Exception as ex:
 finally:
     print("exit app!")
     GPIO.cleanup()
+    os.kill(mypid, signal.SIGTERM)
