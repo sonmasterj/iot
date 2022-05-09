@@ -405,7 +405,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -440,7 +440,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -475,7 +475,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -511,7 +511,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -547,7 +547,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -583,7 +583,7 @@ background-color: rgb(84,153,199);
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -656,7 +656,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -691,7 +691,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -727,7 +727,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -980,7 +980,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1015,7 +1015,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1051,7 +1051,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1087,7 +1087,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1196,7 +1196,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1231,7 +1231,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1266,7 +1266,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1371,7 +1371,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1440,7 +1440,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1513,7 +1513,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1548,7 +1548,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1617,7 +1617,7 @@ QPushButton:hover{
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -1647,7 +1647,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1658,7 +1658,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1707,7 +1707,7 @@ QPushButton:hover{
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -1737,7 +1737,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1748,7 +1748,7 @@ QPushButton:hover{
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1820,7 +1820,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -1850,7 +1850,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1861,7 +1861,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1933,7 +1933,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -1963,7 +1963,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -1974,7 +1974,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2046,7 +2046,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2076,7 +2076,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2087,7 +2087,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2159,7 +2159,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2189,7 +2189,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2200,7 +2200,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2272,7 +2272,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2302,7 +2302,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2313,7 +2313,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2385,7 +2385,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2415,7 +2415,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2426,7 +2426,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2498,7 +2498,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2528,7 +2528,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2539,7 +2539,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2611,7 +2611,7 @@ background-color:transparent;
                <property name="font">
                 <font>
                  <family>Times New Roman</family>
-                 <pointsize>12</pointsize>
+                 <pointsize>14</pointsize>
                 </font>
                </property>
                <property name="styleSheet">
@@ -2641,7 +2641,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2652,7 +2652,7 @@ background-color:transparent;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                </column>
@@ -2826,6 +2826,11 @@ border:none;
                      <height>40</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
                    <property name="currentIndex">
                     <number>0</number>
                    </property>
@@ -2893,7 +2898,7 @@ border:none;
                    <property name="font">
                     <font>
                      <family>Times New Roman</family>
-                     <pointsize>10</pointsize>
+                     <pointsize>12</pointsize>
                     </font>
                    </property>
                    <property name="locale">
@@ -2948,7 +2953,7 @@ border:none;
                    <property name="font">
                     <font>
                      <family>Times New Roman</family>
-                     <pointsize>10</pointsize>
+                     <pointsize>12</pointsize>
                     </font>
                    </property>
                    <property name="locale">
@@ -3100,7 +3105,7 @@ background-color:#ffe5c4;
              <property name="font">
               <font>
                <family>Times New Roman</family>
-               <pointsize>12</pointsize>
+               <pointsize>14</pointsize>
               </font>
              </property>
              <property name="styleSheet">
@@ -3133,7 +3138,7 @@ background-color:#ffe5c4;
               <property name="font">
                <font>
                 <family>Times New Roman</family>
-                <pointsize>12</pointsize>
+                <pointsize>14</pointsize>
                </font>
               </property>
              </column>
@@ -3144,7 +3149,7 @@ background-color:#ffe5c4;
               <property name="font">
                <font>
                 <family>Times New Roman</family>
-                <pointsize>12</pointsize>
+                <pointsize>14</pointsize>
                </font>
               </property>
              </column>
@@ -3199,14 +3204,14 @@ border:none;
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>30</width>
-                  <height>30</height>
+                  <width>60</width>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>30</width>
-                  <height>30</height>
+                  <width>60</width>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="font">
@@ -3227,7 +3232,7 @@ border:none;
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -3244,14 +3249,14 @@ border:none;
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>30</width>
-                  <height>30</height>
+                  <width>60</width>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>30</width>
-                  <height>30</height>
+                  <width>60</width>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="font">
@@ -3334,7 +3339,7 @@ border:none;
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>12</pointsize>
+           <pointsize>14</pointsize>
           </font>
          </property>
          <property name="styleSheet">
@@ -3504,7 +3509,7 @@ border-radius:8px;</string>
             <property name="font">
              <font>
               <family>Times New Roman</family>
-              <pointsize>12</pointsize>
+              <pointsize>14</pointsize>
              </font>
             </property>
             <property name="styleSheet">
@@ -3523,7 +3528,7 @@ border-radius:8px;</string>
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>12</pointsize>
+           <pointsize>14</pointsize>
           </font>
          </property>
          <property name="styleSheet">
