@@ -1,6 +1,7 @@
 import os
 import glob
 import sys
+import subprocess
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
@@ -32,7 +33,7 @@ view_path = 'iot.ui'
 # application_path =os.path.dirname(os.path.abspath(__file__)) 
 # curren_path = os.path.join(application_path,os.pardir)
 # print(curren_path)
-
+win = None
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -499,7 +500,7 @@ try:
             self.btn_history.clicked.connect(self.goHistory)
             self.btn_exit.clicked.connect(self.goClose)
 
-            self.btn_off.clicked.connect(self.goClose)
+            self.btn_off.clicked.connect(self.goOff)
             self.btn_run.clicked.connect(self.startMeasure)
 
             self.btn_temp.clicked.connect(self.goTemp)
@@ -869,7 +870,7 @@ try:
                 return QMessageBox.warning(self, 'Thông báo', 'Dữ liệu tìm kiếm quá thời gian một ngày.\nVui lòng chọn lại thời gian!', QMessageBox.Ok)
             
             # print(startQuery,endQuery)
-            self.btn_search.setEnabled(False)
+            # self.btn_search.setEnabled(False)
             try:
 
                 if self.selectedSensor ==0:
@@ -929,10 +930,10 @@ try:
                             dt = item.ec
                         rowData= [convertTime(item.time),str(dt)]
                         self.insertRow(self.tableSensor_2,rowData)
-                self.btn_search.setEnabled(True)
+                # self.btn_search.setEnabled(True)
             except Exception as ex:
                 print(ex)
-                self.btn_search.setEnabled(True)
+                # self.btn_search.setEnabled(True)
                 db_rollback()
         
         def nextQuery(self):
@@ -1305,7 +1306,7 @@ try:
                 currentPage = self.stackedWidget.currentIndex()
                 if currentPage == 5:
                     self.gaugeCO2.update_value(dt['co2'])
-                    self.line_co2.setData(self.time_stamp_co2,self.line_co2)
+                    self.line_co2.setData(self.time_stamp_co2,self.list_co2)
                 
                 #update table
                 count = self.tableCO2.rowCount()
@@ -1512,8 +1513,38 @@ try:
 
             if returnValue == QMessageBox.No:
                 return
-            db_close()
+            # db_close()
+            self.readInternet.threadActive = False
+            self.sensorStatus.threadActive = False
+            self.soundSensor.threadActive = False
+            self.co2Sensor.threadActive = False
+            self.tempSensor.threadActive = False
+            self.adcSensor.threadActive = False
+            self.digitalSensor.threadActive = False
+            for i in range(1000):
+                pass
             self.close()
+        def goOff(self):
+            if self.dialog_show == True:
+                return
+            newMessBox = QMessageBox(self)
+            newMessBox.setIcon(QMessageBox.Warning)
+            newMessBox.setText("Bạn có chắc chắn muốn tắt máy?")
+            newMessBox.setWindowTitle("Thông báo")
+            newMessBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            returnValue = newMessBox.exec()
+            if returnValue == QMessageBox.No:
+                return
+            # db_close()
+            self.readInternet.threadActive = False
+            self.sensorStatus.threadActive = False
+            self.soundSensor.threadActive = False
+            self.co2Sensor.threadActive = False
+            self.tempSensor.threadActive = False
+            self.adcSensor.threadActive = False
+            self.digitalSensor.threadActive = False
+            # delay(50)
+            subprocess.Popen('sudo shutdown -h now',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         
         def goTemp(self):
             self.stackedWidget.setCurrentIndex(1)
@@ -1606,7 +1637,11 @@ try:
         # window.show()
         win = Main()
         # win.show()
-        app.exec_()
+        sys.exit(app.exec_())
+except Exception as ex:
+    print(ex)
+    # GPIO.cleanup()
+    del win.window 
 finally:
     print("exit app!")
     GPIO.cleanup()
