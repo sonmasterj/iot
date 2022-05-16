@@ -160,7 +160,7 @@ try:
                     dt_sensor[7]=1
                 
                 #check cam bien do dan dien
-                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                if portA_1==6 or portA_2==6 or portA_3==6 or portA_4==6:
                     dt_sensor[8]=1             
                 self.updateStatus.emit(dt_sensor)
                 if dt_sensor[0]==1 and tempEnable==False :
@@ -478,6 +478,7 @@ try:
             self.event_stop = None
             self.selectedSensor = -1
             self.dialog_show = False
+            self.hdmi = False
             # self.installEventFilter(self)
 
             #array store sensor data
@@ -507,7 +508,8 @@ try:
             #set button events
             self.btn_home.clicked.connect(self.goHome)
             self.btn_history.clicked.connect(self.goHistory)
-            self.btn_exit.clicked.connect(self.goClose)
+            # self.btn_exit.clicked.connect(self.goClose)
+            self.btn_exit.hide()
 
             self.btn_off.clicked.connect(self.goOff)
             self.btn_run.clicked.connect(self.startMeasure)
@@ -527,6 +529,7 @@ try:
             self.btn_export.clicked.connect(self.sendMail)
             self.btn_next.clicked.connect(self.nextQuery)
             self.btn_prev.clicked.connect(self.prevQuery)
+            # self.
 
             self.checkLast.stateChanged.connect(self.changeCheckbox)
 
@@ -1077,6 +1080,13 @@ try:
         
         def updateInternet(self,dt):
             # print('internet status:',dt)
+            if self.hdmi == False:
+                result = subprocess.Popen('xrandr --auto --output HDMI-2 --mode 1280x720 --same-as HDMI-1',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).communicate()[1].decode('utf-8')
+                print("result string std",result)
+                if result.find('cannot find mode 1280x720')!=-1:
+                    self.hdmi = False
+                else:
+                    self.hdmi = True
             if self.internetStatus==dt:
                 return
             self.internetStatus=dt
@@ -1086,6 +1096,7 @@ try:
             else:
                 self.frameInternet.setToolTip('Mất kết nối')
                 self.lb_internet.setStyleSheet("background-color: rgb(255,0, 0);border-radius:8px;")
+            
         def updateSensorStatus(self,dt):
             # print('sensor status:',dt)
             if self.listSensorStatus[0]!=dt[0]:
