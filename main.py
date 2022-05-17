@@ -202,16 +202,16 @@ try:
                 sound = 0.0
                 if gpio_adapter.input(ada1_2)==0 and gpio_adapter.input(ada1_3)==0:
                     vol = self.adc.read_adc(0,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada2_2)==0 and gpio_adapter.input(ada2_3)==0:
                     vol = self.adc.read_adc(1,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada3_2)==0 and gpio_adapter.input(ada3_3)==0:
                     vol = self.adc.read_adc(2,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada4_2)==0 and gpio_adapter.input(ada4_3)==0:
                     vol = self.adc.read_adc(3,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 if sound<0:
                     sound = 0.0
                 dt={
@@ -349,6 +349,7 @@ try:
                 portA_4 = listPin_status[9]+listPin_status[10]*2+listPin_status[11]*4
                 
                 portA=[portA_1,portA_2,portA_3,portA_4]
+                # print(portA)
                 #check ph sensor
                 _ph=0.0
                 if portA_1==2 or portA_2==2 or portA_3==2 or portA_4==2:
@@ -366,9 +367,9 @@ try:
                             break  
                 #check ec sensor
                 _ec=0.0
-                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                if portA_1==6 or portA_2==6 or portA_3==6 or portA_4==6:
                     for i in range(4):
-                        if portA[i]==3:
+                        if portA[i]==6:
                             _ec = convertEC(raw_adc[i])
                             break       
                   
