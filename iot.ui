@@ -3582,7 +3582,11 @@ QPushButton:hover{
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">border: 1px solid gray;</string>
+             <string notr="true">QProgressBar::chunk{
+	background-color:rgb(8, 199, 59);
+}
+QProgressBar{border: 1px solid gray;}
+</string>
             </property>
             <property name="value">
              <number>100</number>
