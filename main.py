@@ -9,7 +9,7 @@ import assets_qrc
 from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView
 from PyQt5 import uic
 from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QObject
-from PyQt5.QtGui import QIcon,QGuiApplication,QRegion
+from PyQt5.QtGui import QIcon,QGuiApplication,QRegion,QPixmap
 import pyqtgraph as pg
 from analoggaugewidget import AnalogGaugeWidget
 from mail import Mail
@@ -27,6 +27,7 @@ from sensors.wateroxigen import convertWaterOxygen
 from sensors.ph import convertPH
 from sensors.ec import convertEC
 from sensors.ADS1x15 import ADS1115
+from sensors.battery import UPS2
 import smbus
 from collections import deque
 from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback
@@ -183,6 +184,39 @@ try:
             self.threadActive = False
             # self.terminate()
             # self.wait()
+            self.quit()
+
+    class batteryThread(QThread):
+        updateBat = pyqtSignal(object)
+        def __init__(self,*args, **kwargs):
+            global adc_adapter
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.interval = SLOW_INTERVAL
+            self.bat = UPS2()
+            self.step = self.interval/MAX_STEPS
+        
+        def run(self):
+            while self.threadActive == True:
+                try:
+                    vin,batcap = self.bat.decode_uart()
+                    
+                    dt={
+                        'vin':vin,
+                        'batcap':batcap
+                    }
+                    self.updateBat.emit(dt)
+                except Exception as ex:
+                    print(ex)
+                    pass
+                i=0
+                while i< self.step and self.threadActive == True:
+                    i=i+1
+                    self.msleep(MAX_STEPS)
+        def stop(self):
+            self.threadActive = False
+            self.bat.close_serial()
+            # self.terminate()
             self.quit()
     
     class soundThread(QThread):
@@ -473,6 +507,7 @@ try:
             self.numItem = 20
             self.listSensorStatus=[0]*9
             self.internetStatus='0'
+            self.chargeBattery = True
             self.start = False
             self.totalTime = TIME_MEASURE*60
             self.event_start = None
@@ -562,10 +597,15 @@ try:
             self.runMeasure.setInterval(TIME_MEASURE*60*1000)
             self.runMeasure.timeout.connect(self.stopMeasure)
 
-            #set up internet thread
+            #set up internet threadss
             self.readInternet = internetThread(self)
             self.readInternet.updateStatus.connect(self.updateInternet)
             self.readInternet.start()
+
+            #set up battery thread
+            self.readBattery = batteryThread(self)
+            self.readBattery.updateBat.connect(self.updateBattery)
+            self.readBattery.start()
 
             #set up sensor status thread
             self.sensorStatus = checkThread(self)
@@ -1047,7 +1087,7 @@ try:
 
             
         def showTime(self):
-            now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            now = datetime.now().strftime("%d/%m/%Y %H:%M")
             self.lb_datetime.setText(now)
             if self.start == True:
                 self.totalTime= self.totalTime-1
@@ -1093,11 +1133,28 @@ try:
             self.internetStatus=dt
             if dt=='1':
                 self.frameInternet.setToolTip('Đang kết nối')
-                self.lb_internet.setStyleSheet("background-color: rgb(0, 255, 0);border-radius:8px;")
+                self.lb_internet.setPixmap(QPixmap(':/img/network.svg'))
             else:
                 self.frameInternet.setToolTip('Mất kết nối')
-                self.lb_internet.setStyleSheet("background-color: rgb(255,0, 0);border-radius:8px;")
-            
+                self.lb_internet.setPixmap(QPixmap(':/img/network_lost.svg'))
+
+        def updateBattery(self,dt):
+            # print('battery status:',dt)
+            self.battery_percent.setValue(int(dt['batcap']))
+            bat_status = False
+            if dt['vin']=="NG":
+                bat_status = False
+            else:
+                bat_status = True
+            if self.chargeBattery == bat_status:
+                return
+            self.chargeBattery = bat_status
+
+            if self.chargeBattery ==True:
+                self.lb_charge.setPixmap(QPixmap(':/img/thunder.svg'))
+            else:
+                self.lb_charge.clear()
+
         def updateSensorStatus(self,dt):
             # print('sensor status:',dt)
             if self.listSensorStatus[0]!=dt[0]:
@@ -1375,7 +1432,7 @@ try:
             if self.start == False:
                 self.start = True
                 self.btn_run.setIcon(QIcon(':/img/pause.svg'))
-                self.btn_run.setText('Dừng')
+                # self.btn_run.setText('Dừng')
 
                 #reset data
                 self.time_stamp_temp=deque([])
@@ -1473,7 +1530,7 @@ try:
                     return
                 self.start = False
                 self.btn_run.setIcon(QIcon(':/img/play.svg'))
-                self.btn_run.setText('Chạy')
+                # self.btn_run.setText('Chạy')
                 self.runMeasure.stop()
                 self.event_stop = timestamp()
                 try:
