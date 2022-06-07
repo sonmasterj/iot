@@ -2,6 +2,7 @@ import os
 import glob
 import sys
 import subprocess
+# import signal
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
@@ -33,7 +34,8 @@ view_path = 'iot.ui'
 # application_path =os.path.dirname(os.path.abspath(__file__)) 
 # curren_path = os.path.join(application_path,os.pardir)
 # print(curren_path)
-win = None
+# win = None
+# mypid= os.getpid()
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -158,7 +160,7 @@ try:
                     dt_sensor[7]=1
                 
                 #check cam bien do dan dien
-                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                if portA_1==6 or portA_2==6 or portA_3==6 or portA_4==6:
                     dt_sensor[8]=1             
                 self.updateStatus.emit(dt_sensor)
                 if dt_sensor[0]==1 and tempEnable==False :
@@ -179,8 +181,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
     class soundThread(QThread):
         updateDt = pyqtSignal(object)
@@ -199,16 +202,16 @@ try:
                 sound = 0.0
                 if gpio_adapter.input(ada1_2)==0 and gpio_adapter.input(ada1_3)==0:
                     vol = self.adc.read_adc(0,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada2_2)==0 and gpio_adapter.input(ada2_3)==0:
                     vol = self.adc.read_adc(1,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada3_2)==0 and gpio_adapter.input(ada3_3)==0:
                     vol = self.adc.read_adc(2,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 elif gpio_adapter.input(ada4_2)==0 and gpio_adapter.input(ada4_3)==0:
                     vol = self.adc.read_adc(3,gain=ADC_GAIN)*4.096/32767.0
-                    sound = round(vol*50,1)
+                    sound = round(vol*50-12,1)
                 if sound<0:
                     sound = 0.0
                 dt={
@@ -222,8 +225,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            self.quit()
+            # self.wait()
 
     class tempThread(QThread):
         updateDt = pyqtSignal(object)
@@ -262,8 +266,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
 
     #reading sensor thread
     class digitalThread(QThread):
@@ -299,8 +304,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
     #analog sensor
     class analogThread(QThread):
@@ -343,6 +349,7 @@ try:
                 portA_4 = listPin_status[9]+listPin_status[10]*2+listPin_status[11]*4
                 
                 portA=[portA_1,portA_2,portA_3,portA_4]
+                # print(portA)
                 #check ph sensor
                 _ph=0.0
                 if portA_1==2 or portA_2==2 or portA_3==2 or portA_4==2:
@@ -360,9 +367,9 @@ try:
                             break  
                 #check ec sensor
                 _ec=0.0
-                if portA_1==3 or portA_2==3 or portA_3==3 or portA_4==3:
+                if portA_1==6 or portA_2==6 or portA_3==6 or portA_4==6:
                     for i in range(4):
-                        if portA[i]==3:
+                        if portA[i]==6:
                             _ec = convertEC(raw_adc[i])
                             break       
                   
@@ -383,8 +390,9 @@ try:
                 
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     #reading co2 thread
     class co2Thread(QThread):
         updateDt = pyqtSignal(object)
@@ -412,8 +420,9 @@ try:
         def stop(self):
             self.threadActive = False
             self.co2.close_serial()
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
     
 
 
@@ -435,8 +444,9 @@ try:
                     self.msleep(MAX_STEPS)
         def stop(self):
             self.threadActive = False
-            self.terminate()
-            self.wait()
+            # self.terminate()
+            # self.wait()
+            self.quit()
 
 
     class TimeAxisItem(pg.AxisItem):
@@ -469,6 +479,7 @@ try:
             self.event_stop = None
             self.selectedSensor = -1
             self.dialog_show = False
+            self.hdmi = False
             # self.installEventFilter(self)
 
             #array store sensor data
@@ -498,7 +509,8 @@ try:
             #set button events
             self.btn_home.clicked.connect(self.goHome)
             self.btn_history.clicked.connect(self.goHistory)
-            self.btn_exit.clicked.connect(self.goClose)
+            # self.btn_exit.clicked.connect(self.goClose)
+            self.btn_exit.hide()
 
             self.btn_off.clicked.connect(self.goOff)
             self.btn_run.clicked.connect(self.startMeasure)
@@ -518,6 +530,7 @@ try:
             self.btn_export.clicked.connect(self.sendMail)
             self.btn_next.clicked.connect(self.nextQuery)
             self.btn_prev.clicked.connect(self.prevQuery)
+            # self.
 
             self.checkLast.stateChanged.connect(self.changeCheckbox)
 
@@ -670,7 +683,7 @@ try:
             self.gaugePress.value_min =0
             self.gaugePress.enable_barGraph = True
             self.gaugePress.value_needle_snapzone = 1
-            self.gaugePress.value_max =150
+            self.gaugePress.value_max =1500
             self.gaugePress.scala_main_count=15
             self.gaugePress.set_enable_CenterPoint(False)
             self.gaugePress.update_value(0)
@@ -1068,6 +1081,13 @@ try:
         
         def updateInternet(self,dt):
             # print('internet status:',dt)
+            if self.hdmi == False:
+                result = subprocess.Popen('xrandr --auto --output HDMI-2 --mode 1280x720 --same-as HDMI-1',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).communicate()[1].decode('utf-8')
+                print("result string std",result)
+                if result.find('cannot find mode 1280x720')!=-1:
+                    self.hdmi = False
+                else:
+                    self.hdmi = True
             if self.internetStatus==dt:
                 return
             self.internetStatus=dt
@@ -1077,6 +1097,7 @@ try:
             else:
                 self.frameInternet.setToolTip('Mất kết nối')
                 self.lb_internet.setStyleSheet("background-color: rgb(255,0, 0);border-radius:8px;")
+            
         def updateSensorStatus(self,dt):
             # print('sensor status:',dt)
             if self.listSensorStatus[0]!=dt[0]:
@@ -1513,16 +1534,17 @@ try:
 
             if returnValue == QMessageBox.No:
                 return
-            # db_close()
-            self.readInternet.threadActive = False
-            self.sensorStatus.threadActive = False
-            self.soundSensor.threadActive = False
-            self.co2Sensor.threadActive = False
-            self.tempSensor.threadActive = False
-            self.adcSensor.threadActive = False
-            self.digitalSensor.threadActive = False
-            for i in range(1000):
-                pass
+            db_close()
+            # self.readInternet.threadActive = False
+            # self.sensorStatus.threadActive = False
+            # self.soundSensor.threadActive = False
+            # self.co2Sensor.threadActive = False
+            # self.tempSensor.threadActive = False
+            # self.adcSensor.threadActive = False
+            # self.digitalSensor.threadActive = False
+            # a=0
+            # for i in range(5000):
+            #     a=a+1
             self.close()
         def goOff(self):
             if self.dialog_show == True:
@@ -1536,13 +1558,13 @@ try:
             if returnValue == QMessageBox.No:
                 return
             # db_close()
-            self.readInternet.threadActive = False
-            self.sensorStatus.threadActive = False
-            self.soundSensor.threadActive = False
-            self.co2Sensor.threadActive = False
-            self.tempSensor.threadActive = False
-            self.adcSensor.threadActive = False
-            self.digitalSensor.threadActive = False
+            # self.readInternet.threadActive = False
+            # self.sensorStatus.threadActive = False
+            # self.soundSensor.threadActive = False
+            # self.co2Sensor.threadActive = False
+            # self.tempSensor.threadActive = False
+            # self.adcSensor.threadActive = False
+            # self.digitalSensor.threadActive = False
             # delay(50)
             subprocess.Popen('sudo shutdown -h now',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         
@@ -1630,9 +1652,9 @@ try:
                     return
     if __name__ == "__main__":
         creat_table()
-        # os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
+        os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         app = QApplication(sys.argv)
-        # QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
+        QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
         # window = Home("s")
         # window.show()
         win = Main()
@@ -1641,7 +1663,8 @@ try:
 except Exception as ex:
     print(ex)
     # GPIO.cleanup()
-    del win.window 
+    # del win.window 
 finally:
     print("exit app!")
     GPIO.cleanup()
+    # os.kill(mypid, signal.SIGTERM)
