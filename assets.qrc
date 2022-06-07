@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="img">
+    <file>thunder.svg</file>
+    <file>network_lost.svg</file>
+    <file>network.svg</file>
     <file>pause.svg</file>
     <file>play.svg</file>
     <file>power-on.svg</file>
