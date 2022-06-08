@@ -3,7 +3,7 @@ import re
 serial_port ='/dev/ttyUSB0'
 class UPS2:
     def __init__(self):
-        self.ser  = serial.Serial(serial_port,9600,timeout=3)        
+        self.ser  = serial.Serial(serial_port,9600)        
         
     def get_data(self,nums):
         while True:

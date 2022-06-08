@@ -192,7 +192,7 @@ try:
             global adc_adapter
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL
+            self.interval = SLOW_INTERVAL-2000
             self.bat = UPS2()
             self.step = self.interval/MAX_STEPS
         
