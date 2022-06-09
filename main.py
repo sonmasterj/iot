@@ -6,10 +6,10 @@ import subprocess
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
-from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView
+from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView,QTabWidget
 from PyQt5 import uic
 from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QObject
-from PyQt5.QtGui import QIcon,QGuiApplication,QRegion,QPixmap
+from PyQt5.QtGui import QIcon,QGuiApplication,QRegion,QPixmap,QColor,QBrush
 import pyqtgraph as pg
 from analoggaugewidget import AnalogGaugeWidget
 from mail import Mail
@@ -37,6 +37,10 @@ view_path = 'iot.ui'
 # print(curren_path)
 # win = None
 # mypid= os.getpid()
+from ultil.spinner import QtWaitingSpinner
+from sensors.wifi import WiFiManager
+from asyncqt import QEventLoop
+import asyncio
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -99,6 +103,10 @@ try:
             return 0
     def timestamp():
         return (datetime.now().timestamp())
+
+    #thread wifi 
+    # class wifiThread(QThread):
+    #     update
 
     #thread check sensor
     class checkThread(QThread):
@@ -500,6 +508,10 @@ try:
             self.stackedWidget.setCurrentIndex(0)
             self.setWindowFlags(Qt.FramelessWindowHint)
             self.showMaximized()
+
+            self.loading = QtWaitingSpinner(parent=self)
+            self.wifi = WiFiManager()
+            self.oldSsid = ''
             self.query = None
             self.queryResult = None
             self.pageResult = 0
@@ -560,6 +572,10 @@ try:
             self.btn_o2n.clicked.connect(self.goO2n)
             self.btn_elec.clicked.connect(self.goElec)
             self.btn_force.clicked.connect(self.goForce)
+
+            self.btn_setting.clicked.connect(self.goSetting)
+
+            self.btn_scan_wifi.clicked.connect(self.scanWifi)
 
             self.btn_search.clicked.connect(self.searchData)
             self.btn_export.clicked.connect(self.sendMail)
@@ -669,6 +685,13 @@ try:
 
             header11= self.tableSensor_2.horizontalHeader()
             header11.setSectionResizeMode(0, QHeaderView.Stretch)
+
+            header12= self.tableWifi.horizontalHeader()
+            header12.setSectionResizeMode(0,QHeaderView.Stretch)
+            header12.setSectionResizeMode(1,QHeaderView.Stretch)
+            header12.setSectionResizeMode(2,QHeaderView.Stretch)
+            header12.setSectionResizeMode(3,QHeaderView.Stretch)
+            # header12.setSectionResizeMode(0,QHeaderView.ResizeToContents)
 
 
             pg.setConfigOption('foreground', 'k')
@@ -1676,6 +1699,24 @@ try:
             # if len(self.list_ec)>0:
             #     self.gaugeElec.update_value(self.list_ec[-1])
             #     self.line_ec.setData(self.time_stamp_analog,self.list_ec)
+        def goSetting(self):
+            self.stackedWidget.setCurrentIndex(12)
+
+        
+        def scanWifi(self):
+            model =  self.tableWifi.model()
+            model.removeRows(0,model.rowCount())
+            
+            self.loading.start()
+            list_wifi,self.oldSsid=self.wifi.scan()
+            
+            self.loading.stop()
+            # for item in list_wifi:
+            #     status='Chưa kết nối'
+            #     if item['status']=='yes':
+            #         status ='Đang kết nối'
+            #     self.insertWifiRow(self.tableWifi,[item['ssid'],item['signal'],item['security'],status])
+
         
         def insertFirstRow(self,table,row_data):
             col=0
@@ -1684,6 +1725,22 @@ try:
             for item in row_data:
                 cell = QTableWidgetItem(str(item))
                 cell.setTextAlignment(Qt.AlignHCenter|Qt.AlignVCenter)
+                table.setItem(row,col,cell)
+                col+=1
+        
+        def insertWifiRow(self,table,row_data):
+            col=0
+            row = 0
+            table.insertRow(row)
+            for i in range(len(row_data)):
+                
+                cell = QTableWidgetItem(str(row_data[i]))
+                cell.setTextAlignment(Qt.AlignHCenter|Qt.AlignVCenter)
+                if i==3:
+                    if row_data[i]=='Đang kết nối':
+                        cell.setForeground(QBrush(QColor(0, 170, 0)))
+                    else:
+                        cell.setForeground(QBrush(QColor(255, 0, 0)))
                 table.setItem(row,col,cell)
                 col+=1
         def insertRow(self,table,row_data):
@@ -1714,9 +1771,12 @@ try:
         QGuiApplication.inputMethod().visibleChanged.connect(handleVisibleChanged)
         # window = Home("s")
         # window.show()
+        # loop = QEventLoop(app)
+        # asyncio.set_event_loop(loop)
         win = Main()
         # win.show()
         sys.exit(app.exec_())
+        
 except Exception as ex:
     print(ex)
     # GPIO.cleanup()
