@@ -3378,7 +3378,7 @@ border:none;
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <property name="iconSize">
               <size>
@@ -3420,6 +3420,9 @@ border:none;
                </property>
                <item>
                 <widget class="QFrame" name="frame_8">
+                 <property name="styleSheet">
+                  <string notr="true">border:none;</string>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
