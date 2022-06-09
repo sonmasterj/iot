@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="img">
+    <file>bluetooth.svg</file>
     <file>thunder.svg</file>
     <file>network_lost.svg</file>
     <file>network.svg</file>

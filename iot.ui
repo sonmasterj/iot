@@ -2783,7 +2783,7 @@ border:none;
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <item>
+              <item alignment="Qt::AlignLeft">
                <widget class="QFrame" name="frame_6">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
@@ -2868,6 +2868,7 @@ border:none;
                    </property>
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>12</pointsize>
                     </font>
                    </property>
@@ -3365,6 +3366,11 @@ border:none;
              <property name="autoFillBackground">
               <bool>false</bool>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QTabWidget{
+border:none;
+}</string>
+             </property>
              <property name="tabPosition">
               <enum>QTabWidget::North</enum>
              </property>
@@ -3492,6 +3498,11 @@ background-color:#ffe5c4;
                    <pointsize>12</pointsize>
                   </font>
                  </property>
+                 <property name="styleSheet">
+                  <string notr="true">QHeaderView::section {
+   border:1px solid gray
+}</string>
+                 </property>
                  <attribute name="horizontalHeaderStretchLastSection">
                   <bool>true</bool>
                  </attribute>
@@ -3547,6 +3558,11 @@ background-color:#ffe5c4;
               </layout>
              </widget>
              <widget class="QWidget" name="timeTab">
+              <property name="styleSheet">
+               <string notr="true">QWidget::timeTab{
+background-color: transparent;
+}</string>
+              </property>
               <attribute name="title">
                <string>Thời gian đo</string>
               </attribute>
@@ -3607,6 +3623,36 @@ background-color:#ffe5c4;
                    <pointsize>12</pointsize>
                   </font>
                  </property>
+                 <item>
+                  <property name="text">
+                   <string>5</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>10</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>15</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>20</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>25</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>30</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>
@@ -3834,6 +3880,34 @@ QPushButton:hover{
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_5">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Bluetooth</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="assets.qrc">:/img/bluetooth.svg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="frameInternet">
          <property name="toolTip">
           <string notr="true">Mất kết nối internet</string>
@@ -3899,6 +3973,12 @@ QPushButton:hover{
        </item>
        <item>
         <widget class="QFrame" name="frame_7">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
