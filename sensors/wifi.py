@@ -1,5 +1,6 @@
 import asyncio
 SCAN_CMD = 'nmcli  --terse --fields active,ssid,signal,security device wifi list --rescan yes'
+RESCAN_CMD = 'nmcli  --terse --fields active,ssid,signal,security device wifi list'
 # RESCAN_CMD = 'nmcli device wifi rescan'
 CONNECT_CMD = '''nmcli  device wifi connect "{0}" password "{1}"'''
 DISCONNECT_CMD = '''nmcli con down id "{0}"'''
@@ -12,10 +13,14 @@ class WiFiManager:
         proc = await asyncio.create_subprocess_shell(cmd,shell=True, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res,err = await proc.communicate()
         return res.decode('utf-8')
+    def rescan(self):
+        # asyncio.run(self.sendCmd(RESCAN_CMD))
+        # res=asyncio.run(self.sendCmd(SCAN_CMD)).split('\n')
+        return asyncio.run(self.sendCmd(RESCAN_CMD))
     def scan(self):
         # asyncio.run(self.sendCmd(RESCAN_CMD))
-        res=asyncio.run(self.sendCmd(SCAN_CMD)).split('\n')
-        return res
+        # res=asyncio.run(self.sendCmd(SCAN_CMD)).split('\n')
+        return asyncio.run(self.sendCmd(SCAN_CMD))
         # dt=[]
         # old_connect=''
         # for item in res:
@@ -32,7 +37,10 @@ class WiFiManager:
         #         if val[0]=='yes':
         #             old_connect=val[1]
         # return dt,old_connect
-    def connectWifi(self,ssid,password):
+    def connectWifi(self,ssid,password,oldWifi):
+        if len(oldWifi)>0:
+            self.disconnectWifi(oldWifi)
+            self.delay(5)
         res= asyncio.run(self.sendCmd(CONNECT_CMD.format(ssid,password)))
         # print(res)
         # if len(res)
