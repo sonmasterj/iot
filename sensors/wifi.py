@@ -2,7 +2,7 @@ import asyncio
 SCAN_CMD = 'nmcli  --terse --fields active,ssid,signal,security device wifi list --rescan yes'
 RESCAN_CMD = 'nmcli  --terse --fields active,ssid,signal,security device wifi list'
 # RESCAN_CMD = 'nmcli device wifi rescan'
-CONNECT_CMD = '''nmcli  device wifi connect "{0}" password "{1}"'''
+CONNECT_CMD = '''nmcli -w 40  device wifi connect "{0}" password "{1}"'''
 DISCONNECT_CMD = '''nmcli con down id "{0}"'''
 # OFF_CMD = 'nmcli radio '
 class WiFiManager:
