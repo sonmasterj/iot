@@ -3841,6 +3841,11 @@ background-color: transparent;
                    <height>41</height>
                   </size>
                  </property>
+                 <property name="styleSheet">
+                  <string notr="true">QWidget::frame_11:{
+border:none;
+}</string>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
@@ -3960,6 +3965,11 @@ background-color: transparent;
                    <width>16777215</width>
                    <height>41</height>
                   </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QWidget::frame_12:{
+border:none;
+}</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
