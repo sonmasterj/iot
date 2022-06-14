@@ -3796,7 +3796,7 @@ background-color: transparent;
                   </font>
                  </property>
                  <property name="text">
-                  <string>123</string>
+                  <string>0</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
