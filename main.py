@@ -175,13 +175,13 @@ try:
             while self.threadActive == True:
                
                 dt_pin=[]
-                dt_sensor=[0]*9
+                dt_sensor=[0]*10
                 for pin in list_pins:
                     val = gpio_adapter.input(pin)
                     dt_pin.append(val)
                 portD_1= dt_pin[0]+dt_pin[1]*2+dt_pin[2]*4
                 portD_2= dt_pin[3]+dt_pin[4]*2+dt_pin[5]*4
-                # print(portD_2)
+                # print(portD_1)
 
                 portA_1= dt_pin[6]+dt_pin[7]*2+dt_pin[8]*4
                 portA_2= dt_pin[9]+dt_pin[10]*2+dt_pin[11]*4
@@ -207,6 +207,10 @@ try:
                 #check cam bien Co2
                 if portD_1==1 or portD_2==1:
                     dt_sensor[4]=1
+                
+                #check cam bien luc
+                if portD_1 ==5 or portD_2==5:
+                    dt_sensor[9]=1
                 
                 #check cam bien am thanh
                 if portA_1==1 or portA_2==1 or portA_3==1 or portA_4==1:
@@ -569,7 +573,7 @@ try:
             self.pageResult = 0
             self.totalPage = 0
             self.numItem = 20
-            self.listSensorStatus=[0]*9
+            self.listSensorStatus=[0]*10
             self.internetStatus='0'
             self.chargeBattery = True
             self.start = False
@@ -1363,6 +1367,16 @@ try:
                     self.lb_elec.setText('0.0')
                     self.lb_elec_status.setText("Ngắt kết nối")
                     self.lb_elec_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
+
+            if self.listSensorStatus[9]!=dt[9]:
+                self.listSensorStatus[9]=dt[9]
+                if dt[9]==1:
+                    self.lb_force_status.setText("Đang kết nối")
+                    self.lb_force_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(0, 170, 0);")
+                else:
+                    self.lb_force.setText('0.0')
+                    self.lb_force_status.setText("Ngắt kết nối")
+                    self.lb_force_status.setStyleSheet("background-color: white;border: 2px solid #a7da46;border-radius:10px;color: rgb(255,0, 0);")
 
         def updateTemp(self,dt):
             # print('temp thread:',dt)
