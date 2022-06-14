@@ -3842,7 +3842,7 @@ background-color: transparent;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">QFrame::frame_11:{
+                  <string notr="true">QFrame::frame_11{
 border:none;
 }</string>
                  </property>
@@ -3967,7 +3967,7 @@ border:none;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">QFrame::frame_12:{
+                  <string notr="true">QFrame::frame_12{
 border:none;
 }</string>
                  </property>
