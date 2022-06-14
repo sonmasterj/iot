@@ -10,7 +10,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
-USER_MAIL="iot.demo.sp2022@gmail.com"
+from ultil.spinner import QtWaitingSpinner
+USER_MAIL="iot.demo.sp2022@outlook.com.vn"
 PASS_MAIL="iotdemo1234@"
 def convertTime(time):
     t = datetime.fromtimestamp(time)
@@ -86,6 +87,8 @@ class Mail(QDialog):
         #set event for buttons
         self.btn_exit.clicked.connect(self.goClose)
         self.btn_send.clicked.connect(self.sendMail)
+        self.loading = QtWaitingSpinner(parent=self)
+        # self.loading.start()
 
     def closeEvent(self, QCloseEvent):
         self.parent().dialog_show = False
@@ -100,10 +103,11 @@ class Mail(QDialog):
         if mail.find('@')==-1:
             return QMessageBox.warning(self, 'Thông báo', 'Vui lòng nhập email nhận!', QMessageBox.Ok)
         try:
-            self.btn_send.setEnabled(False)
-            self.btn_exit.setEnabled(False)
-            self.txt_email.setEnabled(False)
-            self.txt_subject.setEnabled(False)
+            # self.btn_send.setEnabled(False)
+            # self.btn_exit.setEnabled(False)
+            # self.txt_email.setEnabled(False)
+            # self.txt_subject.setEnabled(False)
+            self.loading.start()
             sensor_type=''
             sub ='Dữ liệu cảm biến '
             header='Time,'
@@ -172,7 +176,7 @@ class Mail(QDialog):
             # attach the instance 'p' to instance 'msg'
             msg.attach(p)
             # creates SMTP session
-            s = smtplib.SMTP('smtp.gmail.com', 587)
+            s = smtplib.SMTP('smtp-mail.outlook.com', 587)
             # start TLS for security
             s.starttls()
             print('begin send mail')
@@ -185,14 +189,17 @@ class Mail(QDialog):
             s.sendmail(USER_MAIL, mail, text)
             # terminating the session
             s.quit()
+            self.loading.stop()
             QMessageBox.information(self, 'Thông báo', 'Gửi mail thành công!', QMessageBox.Ok)
+
             self.close()
         except Exception as ex:
             print(ex)
-            self.btn_send.setEnabled(True)
-            self.btn_exit.setEnabled(True)
-            self.txt_email.setEnabled(True)
-            self.txt_subject.setEnabled(True)
+            self.loading.stop()
+            # self.btn_send.setEnabled(True)
+            # self.btn_exit.setEnabled(True)
+            # self.txt_email.setEnabled(True)
+            # self.txt_subject.setEnabled(True)
             QMessageBox.warning(self, 'Thông báo', 'Gửi mail thất bại!', QMessageBox.Ok)
 
 # test app

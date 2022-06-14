@@ -2,11 +2,12 @@ import os
 import glob
 import sys
 import subprocess
+from tokenize import String
 # import signal
 # from matplotlib.pyplot import title
 import assets_qrc
 # from random import randint
-from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView,QTabWidget
+from PyQt5.QtWidgets import  QMainWindow,QApplication,QTableWidgetItem,QMessageBox,QHeaderView,QTabWidget,QInputDialog
 from PyQt5 import uic
 from PyQt5.QtCore import Qt,QThread,pyqtSignal, QTimer,QDate,QTime,QObject
 from PyQt5.QtGui import QIcon,QGuiApplication,QRegion,QPixmap,QColor,QBrush
@@ -30,7 +31,7 @@ from sensors.ADS1x15 import ADS1115
 from sensors.battery import UPS2
 import smbus
 from collections import deque
-from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback
+from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback,Setting
 view_path = 'iot.ui'
 # application_path =os.path.dirname(os.path.abspath(__file__)) 
 # curren_path = os.path.join(application_path,os.pardir)
@@ -39,8 +40,8 @@ view_path = 'iot.ui'
 # mypid= os.getpid()
 from ultil.spinner import QtWaitingSpinner
 from sensors.wifi import WiFiManager
-from asyncqt import QEventLoop
-import asyncio
+# from asyncqt import QEventLoop
+# import asyncio
 try:
     CHECK_INTERVAL = 1500
     INTERNET_INTERVAL = 5000
@@ -103,10 +104,61 @@ try:
             return 0
     def timestamp():
         return (datetime.now().timestamp())
+    
+    def parseWifiScan(dt):
+        res = dt.split('\n')
+        list_wifi=[]
+        old_connect=''
+        for item in res:
+            if len(item)>0:
+                val = item.split(':')
+                temp = {
+                    'status':val[0],
+                    'ssid':val[1],
+                    'signal':val[2]+'%',
+                    'security':val[3]
+                }
+                if temp not in list_wifi:
+                    list_wifi.append(temp)
+                if val[0]=='yes':
+                    old_connect=val[1]
+        return list_wifi,old_connect
 
-    #thread wifi 
-    # class wifiThread(QThread):
-    #     update
+    # thread wifi 
+    class wifiThread(QThread):
+        updateData = pyqtSignal(object)
+        def __init__(self,*args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.threadActive = True
+            self.wifi = WiFiManager()
+            self.cmd=''
+            self.data={}
+        def run(self):
+            while self.threadActive == True:
+                if len(self.cmd)>0:
+                    res=''
+                    if self.cmd=='scan':
+                        res =self.wifi.scan()
+                    elif self.cmd=='rescan':
+                        res = self.wifi.rescan()
+                        self.cmd='scan'
+                    elif self.cmd=='connect':
+                        # print(self.data)
+                        res = self.wifi.connectWifi(self.data['ssid'],self.data['password'],self.data['oldWifi'])
+                    self.updateData.emit({
+                        'cmd':self.cmd,
+                        'result':res
+                    })
+                    self.cmd=''
+                else:
+                    self.msleep(200)
+
+
+        def stop(self):
+            self.threadActive = False
+            # self.terminate()
+            # self.wait()
+            self.quit()    
 
     #thread check sensor
     class checkThread(QThread):
@@ -510,7 +562,7 @@ try:
             self.showMaximized()
 
             self.loading = QtWaitingSpinner(parent=self)
-            self.wifi = WiFiManager()
+            # self.wifi = WiFiManager()
             self.oldSsid = ''
             self.query = None
             self.queryResult = None
@@ -521,7 +573,7 @@ try:
             self.internetStatus='0'
             self.chargeBattery = True
             self.start = False
-            self.totalTime = TIME_MEASURE*60
+            
             self.event_start = None
             self.event_stop = None
             self.selectedSensor = -1
@@ -552,6 +604,24 @@ try:
             self.list_co2_full=deque([])
             self.list_sound_full=deque([])
             self.list_temp_full=deque([])
+
+            self.time_measure=5
+            self.zero_weight=0
+            self.cal_weight=0
+
+            try:
+                res = Setting.select()
+                self.time_measure = res[0].time_measure
+                self.zero_weight = res[0].zero_weight
+                self.cal_weight = res[0].cal_weight
+                
+
+            except Exception as ex:
+                print(ex)
+                db_rollback()
+
+            self.totalTime = self.time_measure*60
+
 
             #set button events
             self.btn_home.clicked.connect(self.goHome)
@@ -585,6 +655,9 @@ try:
 
             self.checkLast.stateChanged.connect(self.changeCheckbox)
 
+            self.btn_time_save.clicked.connect(self.editTimeMeasure)
+            self.cb_measure_time.setCurrentIndex(int(self.time_measure/5-1))
+
             
 
             #init qdate
@@ -610,7 +683,7 @@ try:
 
             #set up timer running measure
             self.runMeasure = QTimer()
-            self.runMeasure.setInterval(TIME_MEASURE*60*1000)
+            self.runMeasure.setInterval(self.time_measure*60*1000)
             self.runMeasure.timeout.connect(self.stopMeasure)
 
             #set up internet threadss
@@ -652,6 +725,10 @@ try:
             self.soundSensor.updateDt.connect(self.updateSound)
             self.soundSensor.start()
 
+            self.wifiMan = wifiThread(self)
+            self.wifiMan.updateData.connect(self.updateWifiData)
+            self.wifiMan.start()
+
             #init table
             header1= self.tableTemp.horizontalHeader()
             header1.setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -691,6 +768,7 @@ try:
             header12.setSectionResizeMode(1,QHeaderView.Stretch)
             header12.setSectionResizeMode(2,QHeaderView.Stretch)
             header12.setSectionResizeMode(3,QHeaderView.Stretch)
+            self.tableWifi.itemSelectionChanged.connect(self.onWifiSelected)
             # header12.setSectionResizeMode(0,QHeaderView.ResizeToContents)
 
 
@@ -1121,13 +1199,30 @@ try:
                 self.lb_total_time.setText('Thời gian còn lại: {min}:{sec}'.format(min=_min,sec=_sec))
                 
 
+        def editTimeMeasure(self):
+            try:
+                val = int(self.cb_measure_time.currentText())
+                Setting.update(time_measure=val).where(Setting.id==1).execute()
+                self.time_measure = val
+                # self.totalTime = val*60
+                # self.runMeasure.setInterval(val*60*1000)
+                QMessageBox.information(self, 'Thông báo', 'Lưu thời gian đo thành công!', QMessageBox.Ok)
+            except Exception as ex:
+                print(ex)
+                db_rollback()
+                QMessageBox.warning(self, 'Thông báo', 'Lưu thời gian đo thất bại!', QMessageBox.Ok)
+
+
         def stopMeasure(self):
             
             self.runMeasure.stop()
             self.event_stop = timestamp()
+            self.btn_time_save.setEnabled(True)
+            self.cb_measure_time.setEnabled(True)
+            self.btn_scan_wifi.setEnabled(True)
             self.start = False
             self.btn_run.setIcon(QIcon(':/img/play.svg'))
-            self.btn_run.setText('Chạy')
+            # self.btn_run.setText('Chạy')
             QMessageBox.information(self, 'Thông báo', 'Hoàn thành việc đo cảm biến!', QMessageBox.Ok)
             self.lb_total_time.setText('Thời gian còn lại: --:--')
             try:
@@ -1160,6 +1255,7 @@ try:
             else:
                 self.frameInternet.setToolTip('Mất kết nối')
                 self.lb_internet.setPixmap(QPixmap(':/img/network_lost.svg'))
+        
 
         def updateBattery(self,dt):
             # print('battery status:',dt)
@@ -1288,8 +1384,9 @@ try:
                 if count>self.maxRow:
                     self.tableTemp.removeRow(count-1)
                 self.insertFirstRow(self.tableTemp,[now_str,dt['temp']])
-            if self.lb_temp.text()!= str(dt['temp']):
-                self.lb_temp.setText(str(dt['temp']))
+
+                if self.lb_temp.text()!= str(dt['temp']):
+                    self.lb_temp.setText(str(dt['temp']))
 
         def updateDigital(self,dt):
             # print('data from digital thread:',dt)
@@ -1338,14 +1435,14 @@ try:
 
             
 
-            if self.lb_humid.text()!=str(dt['humid']):
-                self.lb_humid.setText(str(dt['humid']))
+                if self.lb_humid.text()!=str(dt['humid']):
+                    self.lb_humid.setText(str(dt['humid']))
 
-            if self.lb_press.text()!=str(dt['press']):
-                self.lb_press.setText(str(dt['press']))
+                if self.lb_press.text()!=str(dt['press']):
+                    self.lb_press.setText(str(dt['press']))
 
-            if self.lb_o2kk.text()!=str(dt['air_oxy']):
-                self.lb_o2kk.setText(str(dt['air_oxy']))
+                if self.lb_o2kk.text()!=str(dt['air_oxy']):
+                    self.lb_o2kk.setText(str(dt['air_oxy']))
             
             
         def updateAnalog(self,dt):
@@ -1384,14 +1481,14 @@ try:
                 self.insertFirstRow(self.tableO2N,[now_str,dt['water_oxy']])
                 self.insertFirstRow(self.tableElec,[now_str,dt['ec']])
 
-            if self.lb_ph.text()!=str(dt['pH']):
-                self.lb_ph.setText(str(dt['pH']))
-            
-            if self.lb_o2n.text()!=str(dt['water_oxy']):
-                self.lb_o2n.setText(str(dt['water_oxy']))
+                if self.lb_ph.text()!=str(dt['pH']):
+                    self.lb_ph.setText(str(dt['pH']))
+                
+                if self.lb_o2n.text()!=str(dt['water_oxy']):
+                    self.lb_o2n.setText(str(dt['water_oxy']))
 
-            if self.lb_elec.text()!=str(dt['ec']):
-                self.lb_elec.setText(str(dt['ec']))
+                if self.lb_elec.text()!=str(dt['ec']):
+                    self.lb_elec.setText(str(dt['ec']))
         
         def updateCo2(self,dt):
             # print('co2:',dt)
@@ -1416,8 +1513,9 @@ try:
                     self.tableCO2.removeRow(count-1)
                 rowData = [now_str,dt['co2']]
                 self.insertFirstRow(self.tableCO2,rowData)
-            if self.lb_co2.text()!= str(dt['co2']):
-                self.lb_co2.setText(str(dt['co2']))
+
+                if self.lb_co2.text()!= str(dt['co2']):
+                    self.lb_co2.setText(str(dt['co2']))
 
         def updateSound(self,dt):
             # print('sound:',dt)
@@ -1444,8 +1542,8 @@ try:
                 rowData = [now_str,dt['sound']]
                 self.insertFirstRow(self.tableSound,rowData)
 
-            if self.lb_sound.text()!=str(dt['sound']):
-                self.lb_sound.setText(str(dt['sound']))
+                if self.lb_sound.text()!=str(dt['sound']):
+                    self.lb_sound.setText(str(dt['sound']))
 
 
         #event clicked buttons
@@ -1453,6 +1551,9 @@ try:
             if self.dialog_show == True:
                 return
             if self.start == False:
+                self.btn_time_save.setEnabled(False)
+                self.btn_scan_wifi.setEnabled(False)
+                self.cb_measure_time.setEnabled(False)
                 self.start = True
                 self.btn_run.setIcon(QIcon(':/img/pause.svg'))
                 # self.btn_run.setText('Dừng')
@@ -1535,7 +1636,8 @@ try:
 
                 model =  self.tableElec.model()
                 model.removeRows(0,model.rowCount())
-                self.totalTime = TIME_MEASURE*60
+                self.totalTime = self.time_measure*60
+                self.runMeasure.setInterval(self.totalTime*1000)
                 self.lb_total_time.setText('Thời gian còn lại: --:--')
                 self.event_start = timestamp()
                 self.event_stop = None
@@ -1552,6 +1654,9 @@ try:
                 if returnValue == QMessageBox.No:
                     return
                 self.start = False
+                self.btn_time_save.setEnabled(True)
+                self.cb_measure_time.setEnabled(True)
+                self.btn_scan_wifi.setEnabled(True)
                 self.btn_run.setIcon(QIcon(':/img/play.svg'))
                 # self.btn_run.setText('Chạy')
                 self.runMeasure.stop()
@@ -1703,14 +1808,34 @@ try:
             self.stackedWidget.setCurrentIndex(12)
 
         
+        def updateWifiData(self,dt):
+            print('wifi data:',dt)
+            
+            if dt['cmd']=='scan':
+                self.loading.stop()
+                list_wifi,self.oldSsid=parseWifiScan(dt['result'])
+                for item in list_wifi:
+                    status='Chưa kết nối'
+                    if item['status']=='yes':
+                        status ='Đang kết nối'
+                    self.insertWifiRow(self.tableWifi,[item['ssid'],item['signal'],item['security'],status])
+            elif dt['cmd']=='connect':
+                if dt['result'].find('successfully')>=0:
+                    model =  self.tableWifi.model()
+                    model.removeRows(0,model.rowCount())
+                    self.wifiMan.cmd='rescan'
+                else:
+                    self.loading.stop()
+                    self.tableWifi.clearSelection()
+                    return QMessageBox.warning(self, 'Thông báo', 'Kết nối thất bại.Vui lòng thử lại!', QMessageBox.Ok)
+
+
         def scanWifi(self):
             model =  self.tableWifi.model()
             model.removeRows(0,model.rowCount())
+            self.wifiMan.cmd='scan'
             
             self.loading.start()
-            list_wifi,self.oldSsid=self.wifi.scan()
-            
-            self.loading.stop()
             # for item in list_wifi:
             #     status='Chưa kết nối'
             #     if item['status']=='yes':
@@ -1743,6 +1868,51 @@ try:
                         cell.setForeground(QBrush(QColor(255, 0, 0)))
                 table.setItem(row,col,cell)
                 col+=1
+        def onWifiSelected(self):
+            print('change table')
+            try:
+                selectedRows = self.tableWifi.selectionModel().selectedRows()[0]
+                selectedWifi=selectedRows.sibling(selectedRows.row(),0).data()
+                selectedWifiStatus = selectedRows.sibling(selectedRows.row(),3).data()
+                selectedRow = selectedRows.row()
+                print(selectedRow,selectedWifi)
+                if selectedRow>=0:
+                    if selectedWifiStatus=='Đang kết nối':
+                        return QMessageBox.warning(self, 'Thông báo', 'Mạng wifi đã được kết nối!', QMessageBox.Ok)
+                    else:
+                        print('open dialog')
+                        # password,ok = QInputDialog.getText(self,'Kết nối mạng {}'.format(selectedWifi),'Mật khẩu:')
+                        inp = QInputDialog(self)
+
+                        ##### SOME SETTINGS
+                        inp.setInputMode(QInputDialog.TextInput)
+                        # inp.setFixedSize(400, 200)
+                        # inp.setOption(QInputDialog.UsePlainTextEditForTextInput)
+                        inp.setWindowTitle('Kết nối mạng {}'.format(selectedWifi))
+                        inp.setLabelText('Mật khẩu:')
+                        #####
+                        inp.show()
+                        inp.raise_()
+                        inp.activateWindow()
+                        inp.finished.connect(lambda:self.closeWifiDialog(inp,selectedWifi))
+            except:
+                pass
+        def closeWifiDialog(self,inp,ssid):
+            # print(inp.result())
+            if inp.result()==1:
+                password=inp.textValue()
+                # print('close dialog',inp.textValue())
+                
+                if len(password)<8:
+                        self.tableWifi.clearSelection()
+                        return QMessageBox.warning(self, 'Thông báo', 'Vui lòng nhập mật khẩu dài hơn 8 kí tự!', QMessageBox.Ok)
+                else:
+                    self.wifiMan.data['ssid']=ssid
+                    self.wifiMan.data['password']=password
+                    self.wifiMan.data['oldWifi']=self.oldSsid
+                    self.wifiMan.cmd='connect'
+                    self.loading.start()
+                inp.deleteLater()
         def insertRow(self,table,row_data):
             col=0
             row = table.rowCount()

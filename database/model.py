@@ -23,10 +23,18 @@ class Analog(BaseModel):
 class Sound(BaseModel):
     sound= FloatField(null=False)
     time = IntegerField(null=False)
+class Setting(BaseModel):
+    time_measure = IntegerField(default=5)
+    zero_weight = FloatField(default=0)
+    cal_weight = FloatField(default=0)
 
 def creat_table():
     if db.table_exists(table_name='co2')!=True:
-        db.create_tables([CO2,Sound,Analog,Digital,Temp])
+        db.create_tables([CO2,Sound,Analog,Digital,Temp,Setting])
+        Setting.create(time_measure=5,zero_weight=0,cal_weight=0)
+    if db.table_exists(table_name='setting')!=True:
+        db.create_tables([Setting])
+        Setting.create(time_measure=5,zero_weight=0,cal_weight=0)
 def db_rollback():
     db.rollback()
 def db_close():

@@ -4,10 +4,10 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
-fromaddr = "drkcloud.info20@gmail.com"
+fromaddr = "iot.demo.sp2022@outlook.com.vn"
 toaddr = "congson1112@gmail.com"
-USER_MAIL="drkcloud.info20@gmail.com"
-PASS_MAIL="drkcloud$02"
+USER_MAIL="iot.demo.sp2022@outlook.com.vn"
+PASS_MAIL="iotdemo1234@"
 start= datetime.now().timestamp()
 # instance of MIMEMultipart
 msg = MIMEMultipart()
@@ -47,11 +47,12 @@ p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
 msg.attach(p)
   
 # creates SMTP session
-s = smtplib.SMTP('smtp.gmail.com', 587)
-  
+# s = smtplib.SMTP('smtp.gmail.com', 587)
+s = smtplib.SMTP('smtp-mail.outlook.com', 587)
+# s.ehlo() 
 # start TLS for security
 s.starttls()
-
+# s.ehlo()
 print('begin send mail')
 # Authentication
 s.login(USER_MAIL, PASS_MAIL)
