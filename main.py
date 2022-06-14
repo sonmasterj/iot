@@ -662,6 +662,10 @@ try:
             self.btn_time_save.clicked.connect(self.editTimeMeasure)
             self.cb_measure_time.setCurrentIndex(int(self.time_measure/5-1))
 
+            self.btn_copy_zero.clicked.connect(self.copyZeroForce)
+            self.btn_copy_cal.clicked.connect(self.copyCalForce)
+            self.btn_force_save.clicked.connect(self.saveForce)
+
             
 
             #init qdate
@@ -1855,7 +1859,22 @@ try:
             #     if item['status']=='yes':
             #         status ='Đang kết nối'
             #     self.insertWifiRow(self.tableWifi,[item['ssid'],item['signal'],item['security'],status])
-
+        
+        def copyZeroForce(self):
+            self.txt_force_zero.setText(self.txt_force_raw.text())
+        
+        def copyCalForce(self):
+            self.txt_force_cal.setText(self.txt_force_raw.text())
+        def saveForce(self):
+            try:
+                cal_weight = int(self.txt_force_cal.text())
+                zero_weight = int(self.txt_force_zero.text())
+                Setting.update(zero_weight=zero_weight,cal_weight=cal_weight).where(Setting.id==1).execute()
+                QMessageBox.information(self, 'Thông báo', 'Lưu cài đặt cảm biến lực thành công!', QMessageBox.Ok)
+            except Exception as ex:
+                print(ex)
+                db_rollback()
+                QMessageBox.information(self, 'Thông báo', 'Lưu cài đặt cảm biến lực thất bại!', QMessageBox.Ok)
         
         def insertFirstRow(self,table,row_data):
             col=0
