@@ -383,7 +383,7 @@ background-color: rgb(84,153,199);
 }</string>
          </property>
          <property name="currentIndex">
-          <number>12</number>
+          <number>11</number>
          </property>
          <widget class="QWidget" name="homePage">
           <property name="styleSheet">
@@ -2920,6 +2920,11 @@ border:none;
                      <string>Độ dẫn điện</string>
                     </property>
                    </item>
+                   <item>
+                    <property name="text">
+                     <string>Cảm biến lực</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item row="0" column="1">
@@ -3378,7 +3383,7 @@ border:none;
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <property name="iconSize">
               <size>
@@ -3842,7 +3847,7 @@ background-color: transparent;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">QFrame::frame_11{
+                  <string notr="true">QFrame#frame_11{
 border:none;
 }</string>
                  </property>
@@ -3967,7 +3972,7 @@ border:none;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">QFrame::frame_12{
+                  <string notr="true">QFrame#frame_12{
 border:none;
 }</string>
                  </property>
