@@ -29,6 +29,7 @@ from sensors.ph import convertPH
 from sensors.ec import convertEC
 from sensors.ADS1x15 import ADS1115
 from sensors.battery import UPS2
+from sensors.force import Force
 import smbus
 from collections import deque
 from database.model import creat_table,db_close,Temp,CO2,Analog,Digital,Sound,db_rollback,Setting
@@ -379,6 +380,7 @@ try:
             self.humid = SHT31(bus)
             self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
             self.press = BMP280(bus)
+            self.force = Force(bus=bus)
             self.step = self.interval/MAX_STEPS
             
 
@@ -388,12 +390,14 @@ try:
                 _humid = self.humid.read_data()
                 _air_oxy = round(self.air_oxy.get_oxygen_data(10),1)
                 _press = round(self.press.readPress(),1)
+                _raw_force = self.force.read_data()
                 now = timestamp()
                 dt={
                     'time':now,
                     'humid':_humid,
                     'press':_press,
                     'air_oxy':_air_oxy,
+                    'force':_raw_force
                 }    
                 self.updateDt.emit(dt) 
                 i=0
@@ -562,6 +566,7 @@ try:
             super().__init__(*args, **kwargs)
             uic.loadUi(view_path,self)
             self.stackedWidget.setCurrentIndex(0)
+            self.tabWidget.setCurrentIndex(0)
             self.setWindowFlags(Qt.FramelessWindowHint)
             self.showMaximized()
 
@@ -586,6 +591,7 @@ try:
             # self.installEventFilter(self)
 
             #array store sensor data
+            self.raw_force=0
             self.maxLen=60
             self.maxRow=20
             self.time_stamp_temp=deque([])
@@ -602,6 +608,7 @@ try:
             self.list_pH=deque([])
             self.list_ec=deque([])
             self.list_co2=deque([])
+            self.list_force=deque([])
 
             self.list_digital_full=deque([])
             self.list_analog_full=deque([])
@@ -612,12 +619,14 @@ try:
             self.time_measure=5
             self.zero_weight=0
             self.cal_weight=0
+            self.scale_weight=0
 
             try:
                 res = Setting.select()
                 self.time_measure = res[0].time_measure
                 self.zero_weight = res[0].zero_weight
                 self.cal_weight = res[0].cal_weight
+                self.scale_weight = (self.cal_weight - self.zero_weight)/9.8
                 
 
             except Exception as ex:
@@ -961,7 +970,7 @@ try:
 
             #page Force
             self.graphForce = pg.PlotWidget(title='Đồ thị lực',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Lực (N)')
-            # self.line_ec = self.graphElec.plot(self.time_stamp_temp,self.list_ec,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
+            self.line_force = self.graphElec.plot(self.time_stamp_temp,self.list_force,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphForce.setMenuEnabled(False)
             self.graphForce.setBackground('w')
             self.verticalLayout_15.addWidget(self.graphForce,0)
@@ -970,7 +979,7 @@ try:
             self.gaugeForce.value_min =0
             self.gaugeForce.enable_barGraph = True
             self.gaugeForce.value_needle_snapzone = 1
-            self.gaugeForce.value_max =1000
+            self.gaugeForce.value_max =100
             self.gaugeForce.scala_main_count=10
             self.gaugeForce.set_enable_CenterPoint(False)
             self.gaugeForce.update_value(0)
@@ -1037,7 +1046,7 @@ try:
 
                 if self.selectedSensor ==0:
                     self.query= Temp.select().where(Temp.time.between(startQuery,endQuery))
-                elif self.selectedSensor==1 or self.selectedSensor==2 or self.selectedSensor==3:
+                elif self.selectedSensor==1 or self.selectedSensor==2 or self.selectedSensor==3 or self.selectedSensor==9:
                     self.query = Digital.select().where(Digital.time.between(startQuery,endQuery))
                 elif self.selectedSensor ==4:
                     self.query = CO2.select().where(CO2.time.between(startQuery,endQuery))
@@ -1090,6 +1099,8 @@ try:
                             dt = item.water_oxy
                         elif self.selectedSensor ==8:
                             dt = item.ec
+                        elif self.selectedSensor==9:
+                            dt = item.force
                         rowData= [convertTime(item.time),str(dt)]
                         self.insertRow(self.tableSensor_2,rowData)
                 # self.btn_search.setEnabled(True)
@@ -1128,6 +1139,8 @@ try:
                         dt = item.water_oxy
                     elif self.selectedSensor ==8:
                         dt = item.ec
+                    elif self.selectedSensor==9:
+                        dt = item.force
                     rowData= [convertTime(item.time),str(dt)]
                     self.insertRow(self.tableSensor_2,rowData)
             except Exception as ex:
@@ -1166,6 +1179,8 @@ try:
                         dt = item.water_oxy
                     elif self.selectedSensor ==8:
                         dt = item.ec
+                    elif self.selectedSensor==9:
+                        dt = item.force
                     rowData= [convertTime(item.time),str(dt)]
                     self.insertRow(self.tableSensor_2,rowData)
             except Exception as ex:
@@ -1415,11 +1430,18 @@ try:
                     self.list_humid.popleft()
                     self.list_press.popleft()
                     self.list_o2kk.popleft()
-                self.list_digital_full.append(dt)
+                    self.list_force.popleft()
+                
                 self.time_stamp_digital.append(now)
                 self.list_humid.append(dt['humid'])
                 self.list_press.append(dt['press'])
                 self.list_o2kk.append(dt['air_oxy'])
+                force=0
+                if self.scale_weight!=0:
+                    force = round(dt['force']/self.scale_weight,1)
+                self.list_force.append(force)
+                dt['force']=force
+                self.list_digital_full.append(dt)
 
 
                 #update graph and gauge
@@ -1433,6 +1455,9 @@ try:
                 elif currentPage ==4:
                     self.gaugeO2kk.update_value(dt['air_oxy'])
                     self.line_o2kk.setData(self.time_stamp_digital,self.list_o2kk)
+                elif currentPage ==10:
+                    self.gaugeForce.update_value(force)
+                    self.line_force.setData(self.time_stamp_digital,self.list_force)
                 
 
 
@@ -1443,11 +1468,13 @@ try:
                     self.tableHumid.removeRow(count-1)
                     self.tablePress.removeRow(count-1)
                     self.tableO2kk.removeRow(count-1)
+                    self.tableForce.removeRow(count-1)
                     
                 
                 self.insertFirstRow(self.tableHumid,[now_str,dt['humid']])
                 self.insertFirstRow(self.tablePress,[now_str,dt['press']])
                 self.insertFirstRow(self.tableO2kk,[now_str,dt['air_oxy']])
+                self.insertFirstRow(self.tableForce,[now_str,force])
                 
 
 
@@ -1461,6 +1488,12 @@ try:
 
                 if self.lb_o2kk.text()!=str(dt['air_oxy']):
                     self.lb_o2kk.setText(str(dt['air_oxy']))
+
+                if self.lb_o2kk.text()!=str(dt['air_oxy']):
+                    self.lb_o2kk.setText(str(dt['air_oxy']))
+
+                if self.lb_force.text()!=str(force):
+                    self.lb_force.setText(str(force))
             
             
         def updateAnalog(self,dt):
@@ -1569,9 +1602,10 @@ try:
             if self.dialog_show == True:
                 return
             if self.start == False:
-                self.btn_time_save.setEnabled(False)
-                self.btn_scan_wifi.setEnabled(False)
-                self.cb_measure_time.setEnabled(False)
+                # self.btn_time_save.setEnabled(False)
+                # self.btn_scan_wifi.setEnabled(False)
+                # self.cb_measure_time.setEnabled(False)
+                self.settingPage.setEnabled(False)
                 self.start = True
                 self.btn_run.setIcon(QIcon(':/img/pause.svg'))
                 # self.btn_run.setText('Dừng')
@@ -1591,6 +1625,7 @@ try:
                 self.list_pH=deque([])
                 self.list_ec=deque([])
                 self.list_co2=deque([])
+                self.list_force=deque([])
 
                 self.list_digital_full=deque([])
                 self.list_analog_full=deque([])
@@ -1608,6 +1643,7 @@ try:
                 self.gaugePH.update_value(0)
                 self.gaugeO2n.update_value(0)
                 self.gaugeElec.update_value(0)
+                self.gaugeForce.update_value(0)
 
                 #reset graph
                 self.line_temp.setData(self.time_stamp_temp,self.list_temp)
@@ -1615,6 +1651,7 @@ try:
                 self.line_press.setData(self.time_stamp_temp,self.list_temp)
                 self.line_co2.setData(self.time_stamp_temp,self.list_temp)
                 self.line_o2kk.setData(self.time_stamp_temp,self.list_temp)
+                self.line_force.setData(self.time_stamp_temp,self.list_temp)
                 self.line_sound.setData(self.time_stamp_temp,self.list_temp)
                 self.line_o2n.setData(self.time_stamp_temp,self.list_temp)
                 self.line_ph.setData(self.time_stamp_temp,self.list_temp)
@@ -1652,8 +1689,13 @@ try:
                 model =  self.tableO2N.model()
                 model.removeRows(0,model.rowCount())
 
+
                 model =  self.tableElec.model()
                 model.removeRows(0,model.rowCount())
+
+                model =  self.tableForce.model()
+                model.removeRows(0,model.rowCount())
+
                 self.totalTime = self.time_measure*60
                 self.runMeasure.setInterval(self.totalTime*1000)
                 self.lb_total_time.setText('Thời gian còn lại: --:--')
@@ -1672,9 +1714,10 @@ try:
                 if returnValue == QMessageBox.No:
                     return
                 self.start = False
-                self.btn_time_save.setEnabled(True)
-                self.cb_measure_time.setEnabled(True)
-                self.btn_scan_wifi.setEnabled(True)
+                # self.btn_time_save.setEnabled(True)
+                # self.cb_measure_time.setEnabled(True)
+                # self.btn_scan_wifi.setEnabled(True)
+                self.settingPage.setEnabled(True)
                 self.btn_run.setIcon(QIcon(':/img/play.svg'))
                 # self.btn_run.setText('Chạy')
                 self.runMeasure.stop()
@@ -1819,9 +1862,9 @@ try:
         
         def goForce(self):
             self.stackedWidget.setCurrentIndex(10)
-            # if len(self.list_ec)>0:
-            #     self.gaugeElec.update_value(self.list_ec[-1])
-            #     self.line_ec.setData(self.time_stamp_analog,self.list_ec)
+            if len(self.list_force)>0:
+                self.gaugeForce.update_value(self.list_force[-1])
+                self.line_force.setData(self.time_stamp_digital,self.list_force)
         def goSetting(self):
             self.stackedWidget.setCurrentIndex(12)
 
@@ -1869,6 +1912,9 @@ try:
             try:
                 cal_weight = int(self.txt_force_cal.text())
                 zero_weight = int(self.txt_force_zero.text())
+                self.scale_weight=(cal_weight-zero_weight)/9.8
+                self.cal_weight = cal_weight
+                self.zero_weight = zero_weight
                 Setting.update(zero_weight=zero_weight,cal_weight=cal_weight).where(Setting.id==1).execute()
                 QMessageBox.information(self, 'Thông báo', 'Lưu cài đặt cảm biến lực thành công!', QMessageBox.Ok)
             except Exception as ex:

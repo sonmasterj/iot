@@ -147,6 +147,10 @@ class Mail(QDialog):
                 sensor_type ='ec'
                 sub = sub +'độ dẫn điện'
                 header=header+'Electrical conductivity value(ms/cm)\n'
+            elif self.name ==9:
+                sensor_type ='force'
+                sub = sub +'lực'
+                header=header+'Force value(N)\n'
             dt_lines=header
             for item in self.dt:
                 dt_lines= dt_lines+convertTime(item.time)+','+str(getattr(item,sensor_type))+'\n'

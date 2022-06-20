@@ -14,6 +14,7 @@ class Digital(BaseModel):
     air_oxy= FloatField(null=False)
     humid= FloatField(null=False)
     press= FloatField(null=False)
+    force = FloatField(null=False)
     time = IntegerField(null=False)
 class Analog(BaseModel):
     water_oxy= FloatField(null=False)
@@ -32,9 +33,10 @@ def creat_table():
     if db.table_exists(table_name='co2')!=True:
         db.create_tables([CO2,Sound,Analog,Digital,Temp,Setting])
         Setting.create(time_measure=5,zero_weight=0,cal_weight=0)
-    if db.table_exists(table_name='setting')!=True:
-        db.create_tables([Setting])
-        Setting.create(time_measure=5,zero_weight=0,cal_weight=0)
+    # if db.table_exists(table_name='digital')==True:
+    #     db.drop_tables([Digital])
+    #     db.create_tables([Digital])
+        # Setting.create(time_measure=5,zero_weight=0,cal_weight=0)
 def db_rollback():
     db.rollback()
 def db_close():

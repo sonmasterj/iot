@@ -1,7 +1,7 @@
 from ultil.asyncSleep import delay
 
 
-class BMP280:
+class BMP280():
     def __init__(self, bus):
         self.bus=bus
     def readPress(self):
