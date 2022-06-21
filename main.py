@@ -51,6 +51,7 @@ try:
     FAST_INTERVAL = 300
     MAX_STEPS = 10
     TIME_MEASURE = 5 # 5 phut
+    GRAVITY=9.85
 
     add1_1=13
     add1_2=16
@@ -375,7 +376,7 @@ try:
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL
+            self.interval = SLOW_INTERVAL-1000
             bus = smbus.SMBus(1)
             self.humid = SHT31(bus)
             self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
@@ -620,13 +621,14 @@ try:
             self.zero_weight=0
             self.cal_weight=0
             self.scale_weight=0
+            self.wifi_popup=False
 
             try:
                 res = Setting.select()
                 self.time_measure = res[0].time_measure
                 self.zero_weight = res[0].zero_weight
                 self.cal_weight = res[0].cal_weight
-                self.scale_weight = (self.cal_weight - self.zero_weight)/9.8
+                self.scale_weight = (self.cal_weight - self.zero_weight)/GRAVITY
                 
 
             except Exception as ex:
@@ -970,7 +972,7 @@ try:
 
             #page Force
             self.graphForce = pg.PlotWidget(title='Đồ thị lực',axisItems={'bottom': TimeAxisItem(orientation='bottom')},left=u'Lực (N)')
-            self.line_force = self.graphElec.plot(self.time_stamp_temp,self.list_force,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
+            self.line_force = self.graphForce.plot(self.time_stamp_temp,self.list_force,pen=pen,symbol='o', symbolSize=5, symbolBrush=('b'))
             self.graphForce.setMenuEnabled(False)
             self.graphForce.setBackground('w')
             self.verticalLayout_15.addWidget(self.graphForce,0)
@@ -1436,9 +1438,11 @@ try:
                 self.list_humid.append(dt['humid'])
                 self.list_press.append(dt['press'])
                 self.list_o2kk.append(dt['air_oxy'])
-                force=0
+                force=0.0
                 if self.scale_weight!=0:
-                    force = round(dt['force']/self.scale_weight,1)
+                    force = round((dt['force']-self.zero_weight)/self.scale_weight,1)
+                    if force<0:
+                        force=0.0
                 self.list_force.append(force)
                 dt['force']=force
                 self.list_digital_full.append(dt)
@@ -1494,6 +1498,7 @@ try:
 
                 if self.lb_force.text()!=str(force):
                     self.lb_force.setText(str(force))
+            self.txt_force_raw.setText(str(dt['force']))
             
             
         def updateAnalog(self,dt):
@@ -1912,7 +1917,7 @@ try:
             try:
                 cal_weight = int(self.txt_force_cal.text())
                 zero_weight = int(self.txt_force_zero.text())
-                self.scale_weight=(cal_weight-zero_weight)/9.8
+                self.scale_weight=(cal_weight-zero_weight)/GRAVITY
                 self.cal_weight = cal_weight
                 self.zero_weight = zero_weight
                 Setting.update(zero_weight=zero_weight,cal_weight=cal_weight).where(Setting.id==1).execute()
@@ -1959,6 +1964,9 @@ try:
                     if selectedWifiStatus=='Đang kết nối':
                         return QMessageBox.warning(self, 'Thông báo', 'Mạng wifi đã được kết nối!', QMessageBox.Ok)
                     else:
+                        if self.wifi_popup==True:
+                            return
+                        self.wifi_popup=True
                         print('open dialog')
                         # password,ok = QInputDialog.getText(self,'Kết nối mạng {}'.format(selectedWifi),'Mật khẩu:')
                         inp = QInputDialog(self)
@@ -1978,6 +1986,7 @@ try:
                 pass
         def closeWifiDialog(self,inp,ssid):
             # print(inp.result())
+            self.wifi_popup=False
             if inp.result()==1:
                 password=inp.textValue()
                 # print('close dialog',inp.textValue())

@@ -21,7 +21,7 @@ class Force():
         weight = data[2]|data[3]<<8|data[4]<<16|data[5]<<24
         return weight
     except Exception as ex:
-      print(ex)
+      # print(ex)
       return 0.0
 # bus=smbus.SMBus(1)
 # sensor = Force(bus=bus)
