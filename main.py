@@ -1249,6 +1249,7 @@ try:
             self.cb_measure_time.setEnabled(True)
             self.btn_scan_wifi.setEnabled(True)
             self.start = False
+            self.settingPage.setEnabled(True)
             self.btn_run.setIcon(QIcon(':/img/play.svg'))
             # self.btn_run.setText('Chạy')
             QMessageBox.information(self, 'Thông báo', 'Hoàn thành việc đo cảm biến!', QMessageBox.Ok)
