@@ -51,7 +51,7 @@ try:
     FAST_INTERVAL = 300
     MAX_STEPS = 10
     TIME_MEASURE = 5 # 5 phut
-    GRAVITY=9.85
+    GRAVITY=9.85*0.1
 
     add1_1=13
     add1_2=16
@@ -334,7 +334,7 @@ try:
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL-900
+            self.interval = SLOW_INTERVAL-1900
             self.temp = None
             self.step = self.interval/MAX_STEPS
 
@@ -376,7 +376,7 @@ try:
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL-1000
+            self.interval = SLOW_INTERVAL-2800
             bus = smbus.SMBus(1)
             self.humid = SHT31(bus)
             self.air_oxy = DFRobot_Oxygen_IIC(bus=bus,addr=0x73)
@@ -418,7 +418,7 @@ try:
             global adc_adapter
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL
+            self.interval = SLOW_INTERVAL-1000
             self.adc = adc_adapter
             self.step = self.interval/MAX_STEPS
             
@@ -502,7 +502,7 @@ try:
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL
+            self.interval = SLOW_INTERVAL-1000
             self.co2 = MHZ19()
             self.step = self.interval/MAX_STEPS
 
@@ -629,6 +629,9 @@ try:
                 self.zero_weight = res[0].zero_weight
                 self.cal_weight = res[0].cal_weight
                 self.scale_weight = (self.cal_weight - self.zero_weight)/GRAVITY
+
+                self.txt_force_zero.setText(str(self.zero_weight))
+                self.txt_force_cal.setText(str(self.cal_weight))
                 
 
             except Exception as ex:
@@ -981,8 +984,8 @@ try:
             self.gaugeForce.value_min =0
             self.gaugeForce.enable_barGraph = True
             self.gaugeForce.value_needle_snapzone = 1
-            self.gaugeForce.value_max =100
-            self.gaugeForce.scala_main_count=10
+            self.gaugeForce.value_max =300
+            self.gaugeForce.scala_main_count=6
             self.gaugeForce.set_enable_CenterPoint(False)
             self.gaugeForce.update_value(0)
             self.verticalLayout_15.addWidget(self.gaugeForce,1)
@@ -1266,6 +1269,7 @@ try:
             # print('internet status:',dt)
             if self.hdmi == False:
                 result = subprocess.Popen('xrandr --auto --output HDMI-2 --mode 1280x720 --same-as HDMI-1',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).communicate()[1].decode('utf-8')
+                # result = subprocess.Popen('xrandr --auto --output HDMI-2  --same-as HDMI-1',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).communicate()[1].decode('utf-8')
                 print("result string std",result)
                 if result.find('cannot find mode 1280x720')!=-1:
                     self.hdmi = False
