@@ -502,7 +502,7 @@ try:
         def __init__(self,*args, **kwargs):
             super().__init__(*args, **kwargs)
             self.threadActive = True
-            self.interval = SLOW_INTERVAL-1000
+            self.interval = SLOW_INTERVAL-1500
             self.co2 = MHZ19()
             self.step = self.interval/MAX_STEPS
 
@@ -566,11 +566,12 @@ try:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             uic.loadUi(view_path,self)
+
             self.stackedWidget.setCurrentIndex(0)
             self.tabWidget.setCurrentIndex(0)
             self.setWindowFlags(Qt.FramelessWindowHint)
             self.showMaximized()
-
+            
             self.loading = QtWaitingSpinner(parent=self)
             # self.wifi = WiFiManager()
             self.oldSsid = ''
@@ -702,11 +703,17 @@ try:
             self.timer.timeout.connect(self.showTime)
             self.timer.start(1000)
 
+            
+            self.show()
+
+
 
             #set up timer running measure
             self.runMeasure = QTimer()
             self.runMeasure.setInterval(self.time_measure*60*1000)
             self.runMeasure.timeout.connect(self.stopMeasure)
+
+            
 
             #set up internet threadss
             self.readInternet = internetThread(self)
@@ -984,15 +991,15 @@ try:
             self.gaugeForce.value_min =0
             self.gaugeForce.enable_barGraph = True
             self.gaugeForce.value_needle_snapzone = 1
-            self.gaugeForce.value_max =300
-            self.gaugeForce.scala_main_count=6
+            self.gaugeForce.value_max =200
+            self.gaugeForce.scala_main_count=4
             self.gaugeForce.set_enable_CenterPoint(False)
             self.gaugeForce.update_value(0)
             self.verticalLayout_15.addWidget(self.gaugeForce,1)
             self.verticalLayout_15.setStretch(0, 1)
             self.verticalLayout_15.setStretch(1, 1)
 
-            self.show()
+            
 
 
 
